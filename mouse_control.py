@@ -24,3 +24,5 @@ class Mouse_control(object):
 
 	def print_points(self):
 		print self.running_points
+
+
