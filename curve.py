@@ -22,10 +22,16 @@ class Curve(object):
 
 
 	def derive(self):
-		pass
+		return list(np.gradient(self.smooth))
 
 	def integrate(self):
-		pass
+		integral = []
+		prev_pt = self.points[0]
+
+		for pt in self.points[1:]:
+			integral.append(np.trapz([prev_pt[1], pt[1]], [prev_pt[0], pt[0]]))
+
+		return integral
 
 	def smoothen(self):
 		# x = [tup[0] for tup in self.points]
@@ -60,22 +66,33 @@ class Curve(object):
 		# pts[index] = (pts[index][0], pts[index][1] + distance)
 
 		if kind == 'absolute':
+			factor = 1.5
 			# Absolute change in distance
 			for i, pt in enumerate(pts[:index]):
-				pts[i] = (pts[i][0], pts[i][1] + distance / (index-i+1))
+				pts[i] = (pts[i][0], pts[i][1] + distance / (index-i+1)**2)
 				print 'moved', distance / (index-i+1)
 
 			for i, pt, in enumerate(pts[index:]):
-				pts[i+index] = (pts[i+index][0], pts[i+index][1] + distance / (i+1))
+				pts[i+index] = (pts[i+index][0], pts[i+index][1] + distance / (i+1)**2)
 				print 'moved', distance / (i+1)
+
+			# # Absolute change in distance
+			# for i, pt in enumerate(pts[:index]):
+			# 	pts[i] = (pts[i][0], pts[i][1] + distance * i / index)
+			# 	print 'moved', distance / (index-i+1)
+
+			# for i, pt, in enumerate(pts[index:]):
+			# 	pts[i+index] = (pts[i+index][0], pts[i+index][1] + distance * (index-i) / index)
+			# 	print 'moved', distance / (i+1)
+
 		elif kind == 'relative':
 			rel_d = distance / pts[index][1] 
 			for i, pt in enumerate(pts[:index]):
-				pts[i] = (pts[i][0], pts[i][1] * (1 + (rel_d / (index-i+1)))**2)
+				pts[i] = (pts[i][0], pts[i][1] * (1 + (rel_d / (index-i+1))))
 				print 'moved', 1 + rel_d / (index-i+1)
 
 			for i, pt, in enumerate(pts[index:]):
-				pts[i+index] = (pts[i+index][0], pts[i+index][1] * (1 + (rel_d / (i+1)))**2)
+				pts[i+index] = (pts[i+index][0], pts[i+index][1] * (1 + (rel_d / (i+1))))
 				print 'moved', 1 + rel_d / (i+1)
 		else:
 			print 'Invalid Version'
@@ -85,6 +102,19 @@ class Curve(object):
 		self.update()
 		return pts
 
+	def draw_to_plot(self, variables=['smooth', 'derivative', 'integral']):
+
+		if any(variables) == 'smooth':
+			xy_s = zip(*self.smooth)
+			plt.plot(xy_s[0], xy_s[1], 'r-')
+
+		if any(variables) == 'derivative':
+			xy_d = zip(*self.derivative)
+			plt.plot(xy_d[0], xy_d[1], 'g-')
+
+		if any(variables) == 'integral':
+			xy_i = zip(*self.integral)
+			plt.plot(xy_i[0], xy_i[1], 'b-')
 
 
 
@@ -105,15 +135,19 @@ if __name__ == '__main__':
 	# Make a curve object
 	c = Curve(pts)
 	c2 = c.deep_copy()
-	c2.move_point(8,-100, kind='absolute')
+	c2.move_point(8,-30, kind='absolute')
 
 	m_xy = zip(*c2.points)
 
 	xynew = zip(*c.smooth)
 	xymoved = zip(*c2.smooth)
 
+	# c.draw_to_plot(plt)
 
+	# plt.show()
 	plt.plot(xy[0], xy[1], 'o' , xynew[0], xynew[1], '-',m_xy[0], m_xy[1], 'o',  xymoved[0], xymoved[1], '+')
 	# plt.plot(xy[0], xy[1], 'o' ,m_xy[0], m_xy[1], '+')
 	plt.show()
+
+
 
