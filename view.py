@@ -20,8 +20,6 @@ class View(object):
     def __init__(self, curve=None):
         pygame.init()
         screen = pygame.display.get_surface()
-
-        self.screen = screen
         self.curve = curve
 
 
@@ -31,8 +29,8 @@ class View(object):
                    dpi=100,        # 100 dots per inch, so the resulting buffer is XxY pixels
                    )
         ax = fig.gca()  # The matplotlib figure will be non-interactive
-        ax.plot(self.curve.ATTRIBUTE)   #!!!
-        #ax.plot([1, 2, 3, 3])   #!!!!
+        #ax.plot(self.curve.ATTRIBUTE)   #!!!
+        ax.plot([1, 2, 3, 3])   #!!!!
          
         canvas = agg.FigureCanvasAgg(fig)
         canvas.draw()   # Non-interactive figures must be manually updated
@@ -49,6 +47,6 @@ class View(object):
         self.screen.blit(surf, (0,0))
         pygame.display.flip()
 
-# tests = View()
-# tests.draw()
+tests = View()
+tests.draw()
 
