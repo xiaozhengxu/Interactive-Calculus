@@ -1,5 +1,6 @@
-####Technical Review Reflection and Synthesis
-#####March, Mathew, Judy
+###Technical Review Reflection and Synthesis
+####March, Mathew, Judy
 #####Feedback and decisions with respect to our key questions
 In our technical review we focused on three technical questions and one question about user interface. Our first question was about the general structure of our code. We wanted feedback on our classes and how they connected with each other. While this question was not optimally framed, we received helpful feedback about our Model class. Currently model class contains an inputted line, its derivative and its integral. The feedback was to consider assigning the line, derivative and integral to a Line class - which would be contained by the Model class. Since there are different ways this can go, some questions of how this will work have been raised. We are now discussing their details and will be implementing this very soon. 
+
   Our second question was specific to openCV. We wanted feedback on how to effectively use openCV to track the coordinates of a line as it was traced. Currently we are tracking a color range, but this has many flaws. We two helpful pieces of advice. The first was to use a flashlight or laser of different and track light intensity to minimize interference from other objects in the frame. The second was a specific link about tracking objects using contours instead of color ranges. Moving forward we will learn from this link and implement contour tracking, possibly switching to tracking intensity if necessary. 
