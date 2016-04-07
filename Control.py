@@ -3,6 +3,26 @@
 """
 import pygame
 
+class Controller(object):
+	def __init__(self):
+		self.mouse_control=Mouse_control()
+		self.open_cv_control=Open_cv_control()
+		self.current_control=self.mouse_control
+		self.running=self.current_control.running
+		self.running_points=self.current_control.running_points
+
+	def handle_events(self):
+		
+		self.current_control.handle_event()
+		self.running=self.current_control.running
+		
+class Open_cv_control(object):
+	def __init__(self):
+		self.running_points = []
+		self.mode = 'None'
+
+	def handle_event(self,event):
+		pass
 
 class Mouse_control(object):
 
@@ -21,13 +41,11 @@ class Mouse_control(object):
 		running_points stores the points of the user's curve as nested lists. (if the user draws a single curve, it would be [[(x,y)...]]
 
 		Next implementation would be to stop drawing when the leftbutton is released (MOUSEBUTTONUP doesn't work right now).'''
-
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				self.running = False
 			# if event.type == pygame.MOUSEBUTTONUP:
 			# 	self.mode='None'
-
 		if pygame.mouse.get_pressed()[0]:
 			if self.mode=='Drawing':
 				self.mode='None'
@@ -54,6 +72,8 @@ class Mouse_control(object):
 
 	def print_points(self):
 		print self.running_points
+
+
 
 #for testing
 # mouse=Mouse_control()

@@ -7,22 +7,15 @@ from curve import Curve
 
 if __name__ == "__main__":
 
+
 	curve = Curve()
+
 
 	view = View(curve)
 
-	# mouse_control = Mouse_control()
+	# control = Control(model)
 
-	# open_cv = Open_CV_control()
 
-	# control = Control(mouse_control, open_cv)
-
-	# screen.fill( (255,255,255) )
-
-	# running = True
-	# while running:
-	# 	pygame.time.wait(100)
-	# 	# draw
 while view.controller.running:
 
 	# control.handle_event()

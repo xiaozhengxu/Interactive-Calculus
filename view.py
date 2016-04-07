@@ -12,7 +12,7 @@ import numpy
 import time
 #Import our own other files 
 from curve import Curve
-from mouse_control import Mouse_control 
+from Control import Controller 
 
 class View(object):
     """
@@ -23,7 +23,7 @@ class View(object):
         pygame.init()
         screen = pygame.display.get_surface()
         # self.curve = curve
-        self.controller=Mouse_control()
+        self.controller=Controller()
 
 
     def draw(self):
@@ -52,10 +52,13 @@ class View(object):
 
     def draw_input(self):
         '''Displays the user's drawing input on the screen'''
-        self.controller.handle_event()
-        window = pygame.display.set_mode((600, 400), DOUBLEBUF) # Includes window size 
+        self.controller.handle_events()
+        window = pygame.display.set_mode((600, 600), DOUBLEBUF) # Includes window size 
         self.screen = pygame.display.get_surface() 
         self.screen.fill((255,255,255))
+        pygame.draw.line(self.screen, (0,0,0), (300,0),(300,600),3)
+        pygame.draw.line(self.screen, (0,0,0), (0,300),(600,300),3)
+
         for i in range(len(self.controller.running_points)):
             if len(self.controller.running_points[i])>1:
                 pygame.draw.lines(self.screen, (255,0,0),False,self.controller.running_points[i], 2)

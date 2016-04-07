@@ -8,9 +8,10 @@ class Curve(object):
 
 	"""
 
-	def __init__(self, points):
-		self.points = points
-		self.update()
+	def __init__(self):
+		# self.points = points
+		# self.update()
+		self.x='y'
 
 	def deep_copy(self):
 		return Curve(self.points[:])
