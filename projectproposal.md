@@ -58,17 +58,14 @@ Iterate on and improve user interface
 Time dependent: Add multivariable functionality.
 
 ####Project schedule: 
-Week 1: Setting up code structure
 
-Week 2: 2D- mouse input and processing, plotting, combine 
+4/10 MVP. Discuss UX 
 
-Week 3: Open CV; modify drawn line
+4/17 Pretty matplotlib, drawing with openCV, move points with mouse
 
-Week 4: Move to 3D, motion capture room 
+4/30 Code done.
 
-Week 5: Finish core code 
-
-Week 6: Polish
+5/5 Project finished.
 
 ####Collaboration plan: 
 Split tasks by function
