@@ -3,29 +3,38 @@ import matplotlib
 
 from mouse_control import Mouse_control
 from view import View
+from curve import Curve
 
 if __name__ == "__main__":
-	screen_size = (640, 480)
 
+	model = Model()
 
-	pygame.init()
-	screen = pygame.display.set_mode(screen_size)
-	mouse_control = Mouse_control()
+	view = View()
 
-	screen.fill( (255,255,255) )
+	# mouse_control = Mouse_control()
 
-	running = True
-	while running:
-		pygame.time.wait(100)
-		# draw
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				running = False
+	# open_cv = Open_CV_control()
 
-			mouse_control.handle_event(event)
+	control = Control(mouse_control, open_cv)
 
-			mouse_control.print_points()
+	# screen.fill( (255,255,255) )
 
-			prev_event = event
+	# running = True
+	# while running:
+	# 	pygame.time.wait(100)
+	# 	# draw
+
+    while control.running:
+    	control.handle_event()
+
+    	view.update()
+
+		# for event in pygame.event.get():
+		# 	if event.type == pygame.QUIT:
+		# 		running = False
+
+		# 	mouse_control.handle_event(event)
+
+		# 	mouse_control.print_points()
 
 			# Open CV event
