@@ -2,6 +2,7 @@ import numpy as np
 import argparse
 import cv2
 
+
 cap=cv2.VideoCapture(0)
 running_points = []
 

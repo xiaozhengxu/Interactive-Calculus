@@ -5,7 +5,7 @@ import numpy as np
 import time 
 #Boundaries that specify the colors of a boundary. 
 
-class Mouse_control(object):
+class Open_CV_control(object):
 
 	def __init__(self):
 		self.running_points = []

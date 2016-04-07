@@ -25,15 +25,15 @@ class View(object):
         # self.curve = curve
         self.controller=Mouse_control()
 
-    #def update()?
 
     def draw(self):
-        fig = pylab.figure(figsize=[4, 4], # Screen Size in inches
+        fig = pylab.figure(figsize=[6, 6], # Screen Size in inches
                    dpi=100,        # 100 dots per inch, so the resulting buffer is XxY pixels
                    )
         ax = fig.gca()  # The matplotlib figure will be non-interactive
         #ax.plot(self.curve.ATTRIBUTE)   #!!!
-        ax.plot([1, 2, 3, 3])   #!!!!
+        ax.plot([1, 2, 3, 3], numpy.linspace(1, len([1, 2, 3, 3]), num = len([1, 2, 3, 3])), [1, 4, 3, 2], [1, 2, 3, 4])  #!!!!
+
          
         canvas = agg.FigureCanvasAgg(fig)
         canvas.draw()   # Non-interactive figures must be manually updated
@@ -41,7 +41,7 @@ class View(object):
         raw_data = renderer.tostring_rgb()  # The raw data (matrix) from the matplotlib graph can now be u1sed by pygame
          
 
-        window = pygame.display.set_mode((600, 400), DOUBLEBUF) # Includes window size 
+        window = pygame.display.set_mode((600, 600), DOUBLEBUF) # Includes window size 
         self.screen = pygame.display.get_surface()
          
         size = canvas.get_width_height()
@@ -54,11 +54,11 @@ class View(object):
         '''Displays the user's drawing input on the screen'''
         self.controller.handle_event()
         window = pygame.display.set_mode((600, 400), DOUBLEBUF) # Includes window size 
-        self.screen = pygame.display.get_surface()
+        self.screen = pygame.display.get_surface() 
         self.screen.fill((255,255,255))
         for i in range(len(self.controller.running_points)):
             if len(self.controller.running_points[i])>1:
-                pygame.draw.lines(self.screen, (255,0,0),False,self.controller.running_points[i], 5)
+                pygame.draw.lines(self.screen, (255,0,0),False,self.controller.running_points[i], 2)
         # for point in self.controller.running_points:
 
         #     pygame.draw.circle(screen, 'red', point, 2, width=0)

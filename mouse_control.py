@@ -20,7 +20,7 @@ class Mouse_control(object):
 
 		running_points stores the points of the user's curve as nested lists. (if the user draws a single curve, it would be [[(x,y)...]]
 
-		Next implementation would be to stop drawing when the leftbutton is released (MOUSEBUTTONUP doesn't work right now.'''
+		Next implementation would be to stop drawing when the leftbutton is released (MOUSEBUTTONUP doesn't work right now).'''
 
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
