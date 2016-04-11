@@ -21,54 +21,53 @@ class View(object):
 
     def __init__(self, curve=None):
         pygame.init()
-        screen = pygame.display.get_surface()
+        self.screen = pygame.display.set_mode((1000, 1000))
+        #screen = pygame.display.get_surface()
         # self.curve = curve
         self.controller=Controller()
+       # self.grid_mode = grid
+
+    def draw_grid(self):
+        for i in range(0, 1000, 20):
+                pygame.draw.line(self.screen, (128,128,128), (i, 0), (i, 1000), 1)
+                pygame.draw.line(self.screen, (128,128,128), (0, i), (1000, i), 1)
 
 
-    def draw(self):
-        fig = pylab.figure(figsize=[6, 6], # Screen Size in inches
-                   dpi=100,        # 100 dots per inch, so the resulting buffer is XxY pixels
-                   )
-        ax = fig.gca()  # The matplotlib figure will be non-interactive
-        #ax.plot(self.curve.ATTRIBUTE)   #!!!
-        ax.plot([1, 2, 3, 3], numpy.linspace(1, len([1, 2, 3, 3]), num = len([1, 2, 3, 3])), [1, 4, 3, 2], [1, 2, 3, 4])  #!!!!
+    def draw_graph(self, grid):
 
-         
-        canvas = agg.FigureCanvasAgg(fig)
-        canvas.draw()   # Non-interactive figures must be manually updated
-        renderer = canvas.get_renderer()
-        raw_data = renderer.tostring_rgb()  # The raw data (matrix) from the matplotlib graph can now be u1sed by pygame
-         
+        self.screen.fill(pygame.Color('white'))
 
-        window = pygame.display.set_mode((600, 600), DOUBLEBUF) # Includes window size 
-        self.screen = pygame.display.get_surface()
-         
-        size = canvas.get_width_height()
-         
-        surf = pygame.image.fromstring(raw_data, size, "RGB")
-        self.screen.blit(surf, (0,0))
-        pygame.display.flip()
+        pygame.draw.line(self.screen, (0, 0, 0), (500, 0), (500, 1000), 3)
+        pygame.draw.line(self.screen, (0, 0, 0), (0, 500), (1000, 500), 3)
+
+        if grid == True: #and self.grid_status == False:
+            self.draw_grid()
+            
+
 
     def draw_input(self):
         '''Displays the user's drawing input on the screen'''
+        
         self.controller.handle_events()
-        window = pygame.display.set_mode((600, 600), DOUBLEBUF) # Includes window size 
-        self.screen = pygame.display.get_surface() 
-        self.screen.fill((255,255,255))
-        pygame.draw.line(self.screen, (0,0,0), (300,0),(300,600),3)
-        pygame.draw.line(self.screen, (0,0,0), (0,300),(600,300),3)
 
         for i in range(len(self.controller.running_points)):
             if len(self.controller.running_points[i])>1:
                 pygame.draw.lines(self.screen, (255,0,0),False,self.controller.running_points[i], 2)
-        # for point in self.controller.running_points:
 
-        #     pygame.draw.circle(screen, 'red', point, 2, width=0)
+        pygame.display.update()
 
-        pygame.display.update() 
+    def draw(self, grid):
+        if 'graph_drawn' not in globals():
+            self.draw_graph(self, grid)
+            graph_drawn == True
+
+        if graph_drawn == False:
+            self.draw_graph(self, grid)
+            graph_drawn == True
+
+        draw_input()
+
+
         
 
-# tests = View()
-# tests.draw()
 
