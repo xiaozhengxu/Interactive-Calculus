@@ -11,6 +11,7 @@ class Curve(object):
 	def __init__(self, points):
 		self.line = Line(points)
 		self.derivative = Line(self.line.derive(), smooth_bool=True)
+		print self.derivative.points
 		self.integral = Line(self.line.integrate(), smooth_bool=True)
 
 	def move_point(self, handle, distance, line='line'):
@@ -63,6 +64,7 @@ class Line(object):
 	"""
 
 	def __init__(self, points, pull_pts_num=7, smooth_bool=False):		
+		print "Making Line"
 		if smooth_bool:		# If the points are smooth, don't bother smoothening the curve
 			self.points = points
 			print len(points)

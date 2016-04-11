@@ -46,9 +46,17 @@ class View(object):
 		'''Displays the user's drawing input on the screen'''
 		
 		self.controller.handle_events()
+		# print self.controller.curve
 
 		if self.controller.curve:# len(self.controller.running_points)>1:
-			pygame.draw.lines(self.screen, (255, 0, 0), False, self.controller.curve.points, 2)
+			print "Should be drawing a curve"
+			pygame.draw.lines(self.screen, (255, 0, 0), False, self.controller.curve.line.points, 2)
+			pygame.draw.lines(self.screen, (0, 255, 0), False, self.controller.curve.derivative.points, 2)
+			pygame.draw.lines(self.screen, (0 ,0 ,255), False, self.controller.curve.integral.points, 2)
+
+		else: 
+			self.screen.fill(pygame.Color('white'))
+			self.draw_graph(grid=True)
 
 		pygame.display.update()
 

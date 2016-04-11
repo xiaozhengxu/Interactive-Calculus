@@ -17,6 +17,7 @@ class Controller(object):
 		
 		self.current_control.handle_event()
 		self.running = self.current_control.running
+		self.curve = self.current_control.curve
 		
 class Open_cv_control(object):
 	def __init__(self):
@@ -53,11 +54,15 @@ class Mouse_control(object):
 		if pygame.mouse.get_pressed()[0] and not self.last_press:
 			if self.mode == 'Drawing':
 				self.mode = None
-				self.curve = Line(self.running_points)  #[::len(self.running_points)/15]
+				print "None Mode"
+				self.curve = Curve(self.running_points[::len(self.running_points)/15])  #[::len(self.running_points)/15]
+				# print self.curve
 			else:
+				print "Drawing mode"
 				self.mode = 'Drawing'
 
 		if pygame.mouse.get_pressed()[2]:
+			print "Clear Mode"
 			self.mode = 'Clear'
 
 		if self.mode == 'Drawing':
@@ -66,12 +71,14 @@ class Mouse_control(object):
 			if not self.running_points:
 				self.running_points.append(mouse_pos)
 
-			if mouse_pos != self.running_points[-1]:
+			if mouse_pos != self.running_points[-1] and self.running_points[-1][0] < mouse_pos[0]: # NOTE: This is where we check if the user goes backwards
 				self.running_points.append(mouse_pos)
 				# if mouse_pos != self.running_points[-1]:
 				# 	self.running_points.append(mouse_pos)
 		if self.mode == 'Clear':
 			self.running_points = []
+			self.curve = None
+			self.mode = None
 		# print self.mode
 
 		self.last_press = pygame.mouse.get_pressed()[0]
