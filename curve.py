@@ -70,6 +70,9 @@ class Line(object):
 		else:
 			self.points, self.pull_points = self.smoothen(points, pull_pts_num=pull_pts_num)
 
+	def __index__(self, idx):
+		return self.points[idx]
+
 	def deep_copy(self):
 		return Line(self.points[:])
 

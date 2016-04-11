@@ -8,10 +8,11 @@ from curve import Curve
 if __name__ == "__main__":
 
 
-	curve = Curve()
+	# curve = Curve()
 
 
-	view = View(curve)
+	view = View()
+	view.draw_graph(grid=True)
 
 	# control = Control(model)
 
