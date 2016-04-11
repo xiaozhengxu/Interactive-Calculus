@@ -7,34 +7,25 @@ from curve import Curve
 
 if __name__ == "__main__":
 
-	model = Model()
 
-	view = View()
+	curve = Curve()
 
-	# mouse_control = Mouse_control()
 
-	# open_cv = Open_CV_control()
+	view = View(curve)
 
-	control = Control(mouse_control, open_cv)
+	# control = Control(model)
 
-	# screen.fill( (255,255,255) )
 
-	# running = True
-	# while running:
-	# 	pygame.time.wait(100)
-	# 	# draw
+while view.controller.running:
 
-    while control.running:
-    	control.handle_event()
+	# control.handle_event()
 
-    	view.update()
+	view.draw_input()
 
-		# for event in pygame.event.get():
-		# 	if event.type == pygame.QUIT:
-		# 		running = False
 
-		# 	mouse_control.handle_event(event)
 
-		# 	mouse_control.print_points()
+	# 	mouse_control.handle_event(event)
 
-			# Open CV event
+	# 	mouse_control.print_points()
+
+		# Open CV event

@@ -66,7 +66,7 @@ class Line(object):
 		if smooth_bool:		# If the points are smooth, don't bother smoothening the curve
 			self.points = points
 			print len(points)
-			self.pull_points = points[::len(points)/3]
+			self.pull_points = (0,0)#points[::len(points)/pull_pts_num]
 		else:
 			self.points, self.pull_points = self.smoothen(points, pull_pts_num=pull_pts_num)
 
@@ -80,7 +80,10 @@ class Line(object):
 
 		interpol = interpolate.interp1d(x,y, kind='cubic')	# Magic interpolation
 
-		xnew = np.linspace(x[0]+1, x[-1]-1, (x[-1] - x[0]))	# Smooth Line
+		# num_points = (x[-1] - x[0])
+		num_points = 100
+
+		xnew = np.linspace(x[0]+1, x[-1]-1, num_points)	# Smooth Line
 		ynew = interpol(xnew)
 
 		xpull = np.linspace(x[0]+1, x[-1]-1, pull_pts_num)	# Pulling Points
@@ -144,7 +147,7 @@ class Line(object):
 		prev_pt = self.points[0]
 
 		for pt in self.points[1:]:
-			deriv.append( ((pt[0]+prev_pt[0])/2, (prev_pt[1]-pt[1])/(prev_pt[0]-pt[0])) )
+			deriv.append( ((pt[0]+prev_pt[0])/2.0, (prev_pt[1]-pt[1])/(prev_pt[0]-pt[0])) )
 			prev_pt = pt
 
 		return deriv
@@ -189,10 +192,12 @@ if __name__ == '__main__':
 	pts = [(20, 438), (43, 395), (90, 317), (160, 263), (213, 261), (291, 285), (379, 282), (468, 228), (544, 142), (598, 55), (609, 39)]
 	# pts = [(79, 330), (81, 317), (88, 266), (108, 221), (170, 165), (246, 127), (333, 133), (375, 196), (366, 260), (316, 281), (275, 258), (260, 218), (304, 145), (365, 113), (478, 129), (556, 172), (584, 183)]
 	# pts = [(1,1), (2,4), (3,9), (4,16), (5,25)]
-	pts = [(x, x**2) for x in list(np.linspace(-1,1,10))]
+	
 	# pts = [(29, 204), (46, 204), (72, 201), (104, 200), (136, 209), (179, 233), (228, 278), (279, 304), (339, 302), (381, 274), (424, 240), (460, 227), (511, 227), (535, 224), (557, 224), (576, 224), (577, 224)]
 
 	# pts = [(pt[0]-200, pt[1]-200) for pt in pts]
+
+	pts = [(x, x**3/10-x+0.2) for x in list(np.linspace(0,1,10))]
 
 	print pts
 
