@@ -31,6 +31,8 @@ class View(object):
 			pygame.draw.line(self.screen, (128,128,128), (i, 0), (i, 1000), 1)
 			pygame.draw.line(self.screen, (128,128,128), (0, i), (1000, i), 1)
 
+	def draw_line(self):
+		pass
 
 	def draw_graph(self, grid):
 
@@ -50,9 +52,13 @@ class View(object):
 
 		if self.controller.curve:# len(self.controller.running_points)>1:
 			print "Should be drawing a curve"
+			print "points:"
+			print  self.controller.curve.line.points
 			pygame.draw.lines(self.screen, (255, 0, 0), False, self.controller.curve.line.points, 2)
 			pygame.draw.lines(self.screen, (0, 255, 0), False, self.controller.curve.derivative.points, 2)
 			pygame.draw.lines(self.screen, (0 ,0 ,255), False, self.controller.curve.integral.points, 2)
+			print 'integral:'
+			print self.controller.curve.integral.points
 
 		else: 
 			self.screen.fill(pygame.Color('white'))

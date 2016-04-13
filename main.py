@@ -7,23 +7,12 @@ from curve import Curve
 
 if __name__ == "__main__":
 
-
-	# curve = Curve()
-
-
 	view = View()
 	view.draw_graph(grid=True)
 
-	# control = Control(model)
-
-
 while view.controller.running:
 
-	# control.handle_event()
-
 	view.draw_input()
-
-
 
 	# 	mouse_control.handle_event(event)
 

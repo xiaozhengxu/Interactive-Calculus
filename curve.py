@@ -11,7 +11,7 @@ class Curve(object):
 	def __init__(self, points):
 		self.line = Line(points)
 		self.derivative = Line(self.line.derive(), smooth_bool=True)
-		print self.derivative.points
+		# print self.derivative.points
 		self.integral = Line(self.line.integrate(), smooth_bool=True)
 
 	def move_point(self, handle, distance, line='line'):
@@ -152,7 +152,7 @@ class Line(object):
 		prev_pt = self.points[0]
 
 		for pt in self.points[1:]:
-			deriv.append( ((pt[0]+prev_pt[0])/2.0, (prev_pt[1]-pt[1])/(prev_pt[0]-pt[0])) )
+			deriv.append( ((pt[0]+prev_pt[0])/2.0, 50*(prev_pt[1]-pt[1])/(prev_pt[0]-pt[0])+500) ) # Note: Weird scaling
 			prev_pt = pt
 
 		return deriv
@@ -170,14 +170,23 @@ class Line(object):
 
 		tr = 0.0
 
+		C = 0
+
 		for pt in self.points[1:]:
 			# integral.append(((pt[0]+prev_pt[0])/2, np.trapz([prev_pt[1], pt[1]], [prev_pt[0], pt[0]])))
-			tr += trap(prev_pt, pt)
-			int_pt = ((pt[0]+prev_pt[0])/2, tr)
-			# print 'point:         ', prev_pt
-			# print 'integral point:', int_pt
+			tr += trap((prev_pt[0]-500, prev_pt[1]-500), (pt[0]-500, pt[1]-500))
+			x = (pt[0]+prev_pt[0])/2
+
+			if x < 500:				# Get the integration constant (integral from the first point to 0)
+				C = tr
+
+			int_pt = (x, tr)
+
 			integral.append(int_pt)
 			prev_pt = pt
+
+
+		integral = [(pt[0], 500+(pt[1]-C)/500) for pt in integral]
 
 		return integral
 
