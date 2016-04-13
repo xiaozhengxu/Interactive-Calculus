@@ -36,21 +36,21 @@ class Curve(object):
 	def draw_to_plot(self, variables=['line', 'derivative', 'integral']):
 
 		if any(var == 'line' for var in variables):
-			print 'Plotting line'
+			# print 'Plotting line'
 			# print self.line.points
 			xy_s = zip(*self.line.points)
 			# print xy_s[1]
 			plt.plot(xy_s[0], xy_s[1], 'r-')
 
 		if any(var == 'derivative' for var in variables):
-			print 'Plotting derivative'
+			# print 'Plotting derivative'
 			pts = [(pt[0], pt[1]) for pt in self.derivative.points]
 			xy_d = zip(*pts)
 			print xy_d[1]
 			plt.plot(xy_d[0], xy_d[1], 'g-')
 
 		if any(var == 'integral' for var in variables):
-			print 'Plotting integral'
+			# print 'Plotting integral'
 			xy_i = zip(*self.integral.points)
 			# print xy_i[1]
 			# print xy_i[1][10]
