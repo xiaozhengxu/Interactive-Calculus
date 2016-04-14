@@ -51,14 +51,9 @@ class View(object):
 		# print self.controller.curve
 
 		if self.controller.curve:# len(self.controller.running_points)>1:
-			# print "Should be drawing a curve"
-			# print "points:"
-			# print  self.controller.curve.line.points
 			pygame.draw.lines(self.screen, (255, 0, 0), False, self.controller.curve.line.points, 2)
 			pygame.draw.lines(self.screen, (0, 255, 0), False, self.controller.curve.derivative.points, 2)
 			pygame.draw.lines(self.screen, (0 ,0 ,255), False, self.controller.curve.integral.points, 2)
-			# print 'integral:'
-			# print self.controller.curve.integral.points
 
 		else: 
 			self.screen.fill(pygame.Color('white'))

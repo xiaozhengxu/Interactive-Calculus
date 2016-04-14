@@ -145,9 +145,6 @@ class Line(object):
 
 	
 	def derive(self):
-		# print list(np.gradient(self.points))
-		# print 'in derive()'
-
 		deriv = []
 		prev_pt = self.points[0]
 
