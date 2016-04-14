@@ -35,19 +35,20 @@ class Open_cv_control(object):
 		self.last_space = False
 		self.mode = 'None'
 		self.camera = cv2.VideoCapture(0)
-		print 'initiated'
+		print 'Initiated open CV'
 
 	def handle_event(self):
 		print self.mode
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
+
+		for event in pygame.event.get():	
+			if event.type == pygame.QUIT:	# Handle window closing
 				self.running = False
 				self.camera.release()
 				cv2.destroyAllWindows()
 
-		keys = pygame.key.get_pressed() #Returns a tuple of 0s corresponding to every key on the keyboard 
+		keys = pygame.key.get_pressed() # Returns a tuple of 1s and 0s corresponding to the the pressed keys
 
-		if keys[pygame.K_SPACE] and not self.last_space:
+		if keys[pygame.K_SPACE] and not self.last_space: # Press space to get into or out of drawing mode
 			if self.mode == 'None':
 				self.mode = 'Drawing'
 			elif self.mode =='Drawing':
@@ -56,37 +57,42 @@ class Open_cv_control(object):
 				cv2.destroyAllWindows()
 				self.curve = Curve(self.running_points[::len(self.running_points)/15])
 
-		self.last_space = keys[pygame.K_SPACE]
-		# grab the current frame (frame and masl are numpy.ndarray)
+		self.last_space = keys[pygame.K_SPACE] # Keep track of the last Space 
+
+		# Grab the current frame (frame and masl are numpy.ndarray)
 		if self.mode == 'Drawing':
 			print self.running_points
 			(grabbed, frame) = self.camera.read()
-			# resize the frame, blur it, and convert it to the HSV
-			# color space 
+
+			# Resize the frame, blur it, and convert it to the HSV color space
 			frame = imutils.resize(frame, width=600)
 			hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-			# construct a mask for the color "green", then perform a series of dilations and erosions to remove any small
+
+			# Construct a mask for the color "green", then perform a series of dilations and erosions to remove any small
 			# blobs left in the mask
 			mask = cv2.inRange(hsv, greenLower, greenUpper)
 			mask = cv2.erode(mask, None, iterations=2)
 			mask = cv2.dilate(mask, None, iterations=2)
-			#flip the mask and frame horizontally
+
+			# Flip the mask and frame horizontally
 			hfmask = cv2.flip(mask,1)
 			hfframe = cv2.flip(frame,1)
-			# find contours in the mask and initialize the current
+
+			# Find contours in the mask and initialize the current
 			# (x, y) center of the ball
 			cnts = cv2.findContours(hfmask.copy(), cv2.RETR_CCOMP,
 				cv2.CHAIN_APPROX_SIMPLE)[-2]
 			center = None
-			# only proceed if at least one contour was found
+
+			# Only proceed if at least one contour was found
 			if len(cnts) > 0:
-				# find the largest contour in the mask, then use
+				# Find the largest contour in the mask, then use
 				# it to compute the minimum enclosing circle and
 				# centroid
 				c = max(cnts, key=cv2.contourArea)
 				((x, y), radius) = cv2.minEnclosingCircle(c)
-				# print radius
-				# only proceed if the radius meets a minimum size
+
+				# Only proceed if the radius meets a minimum size
 				if radius > 30:
 					pts=(int(x),int(y))
 
@@ -95,8 +101,8 @@ class Open_cv_control(object):
 					if not self.running_points:
 						self.running_points.append(pts)
 
-					if pts != self.running_points[-1] and self.running_points[-1][0] < pts[0]:
-						self.running_points.append((int(x),int(y)))
+					if pts != self.running_points[-1] and self.running_points[-1][0] < pts[0]: 	# Add point if it is different than the previous
+						self.running_points.append((int(x),int(y)))								# and if it doesn't curl back (last x < new x)
 			# cv2.imshow("Mask", hfmask)
 			cv2.imshow("Horizontal flip", frame)
 
@@ -120,12 +126,11 @@ class Mouse_control(object):
 		running_points stores the points of the user's curve as nested lists. (if the user draws a single curve, it would be [[(x,y)...]]
 
 		Next implementation would be to stop drawing when the leftbutton is released (MOUSEBUTTONUP doesn't work right now).'''
-		for event in pygame.event.get():
+		for event in pygame.event.get(): # Check for game quit
 			if event.type == pygame.QUIT:
 				self.running = False
-			# if event.type == pygame.MOUSEBUTTONUP:
-			# 	self.mode='None'
-		if pygame.mouse.get_pressed()[0] and not self.last_press:
+
+		if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
 			if self.mode == 'Drawing':
 				self.mode = None
 				print "None Mode"
@@ -135,22 +140,22 @@ class Mouse_control(object):
 				print "Drawing mode"
 				self.mode = 'Drawing'
 
-		if pygame.mouse.get_pressed()[2]:
+		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
 			print "Clear Mode"
 			self.mode = 'Clear'
 
 		if self.mode == 'Drawing':
 			mouse_pos = pygame.mouse.get_pos()
 
+			# Add points based off of mouse position
 			if not self.running_points:
 				self.running_points.append(mouse_pos)
 
 			if mouse_pos != self.running_points[-1] and self.running_points[-1][0] < mouse_pos[0]: # NOTE: This is where we check if the user goes backwards
 				self.running_points.append(mouse_pos)
-				# if mouse_pos != self.running_points[-1]:
-				# 	self.running_points.append(mouse_pos)
+
 		if self.mode == 'Clear':
-			self.running_points = []
+			self.running_points = []	# Delete all of the curves
 			self.curve = None
 			self.mode = None
 		# print self.mode
