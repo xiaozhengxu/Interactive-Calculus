@@ -40,7 +40,7 @@ class View(object):
 
 		if grid == True: #and self.grid_status == False:
 			self.draw_grid()   
-
+		#draw the x and y axes
 		pygame.draw.line(self.screen, (0, 0, 0), (500, 0), (500, 1000), 3)
 		pygame.draw.line(self.screen, (0, 0, 0), (0, 500), (1000, 500), 3)
 
@@ -51,31 +51,25 @@ class View(object):
 		# print self.controller.curve
 
 		if self.controller.curve:# len(self.controller.running_points)>1:
-			# print "Should be drawing a curve"
-			# print "points:"
-			# print  self.controller.curve.line.points
 			pygame.draw.lines(self.screen, (255, 0, 0), False, self.controller.curve.line.points, 2)
 			pygame.draw.lines(self.screen, (0, 255, 0), False, self.controller.curve.derivative.points, 2)
 			pygame.draw.lines(self.screen, (0 ,0 ,255), False, self.controller.curve.integral.points, 2)
-			# print 'integral:'
-			# print self.controller.curve.integral.points
-
 		else: 
 			self.screen.fill(pygame.Color('white'))
 			self.draw_graph(grid=True)
 
 		pygame.display.update()
 
-	def draw(self, grid):
-		if 'graph_drawn' not in globals():
-			self.draw_graph(self, grid)
-			graph_drawn == True
+	# def draw(self, grid):
+	# 	if 'graph_drawn' not in globals():
+	# 		self.draw_graph(self, grid)
+	# 		graph_drawn == True
 
-		if graph_drawn == False:
-			self.draw_graph(self, grid)
-			graph_drawn == True
+	# 	if graph_drawn == False:
+	# 		self.draw_graph(self, grid)
+	# 		graph_drawn == True
 
-		draw_input()
+	# 	draw_input()
 
 
 		

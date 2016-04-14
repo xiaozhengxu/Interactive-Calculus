@@ -145,7 +145,7 @@ class Line(object):
 		elif kind == 'relative':
 			rel_d = distance / pts[index][1] 
 			for i, pt in enumerate(pts[:index]):
-				pts[i] = (pts[i][0], pts[i][1] * (1 + (rel_d / (index-i+1))))	# For the line to the left of the adjusted point, shift each index accordintly. The adjustment becomes larger, closer to the point that was adjusted.
+				pts[i] = (pts[i][0], pts[i][1] * (1 + (rel_d / (index-i+1))))	# For the line to the left of the adjusted point, shift each value accordintly. The adjustment becomes larger, closer to the point that was adjusted.
 				print 'moved', 1 + rel_d / (index-i+1)
 
 			for i, pt, in enumerate(pts[index:]):
@@ -164,6 +164,7 @@ class Line(object):
 		"""
         Method that creates a list of tuples which is the derivative of the current Line object.
 		"""
+
 		deriv = []
 		prev_pt = self.points[0]
 
