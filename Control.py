@@ -3,9 +3,9 @@
 """
 import pygame
 import numpy as np
-import argparse
-import imutils
-import cv2
+# import argparse
+# import imutils
+# import cv2
 
 from curve import *
 
@@ -15,9 +15,9 @@ greenUpper=(64, 255, 255)
 class Controller(object):
 	def __init__(self):
 		self.mouse_control = Mouse_control()
-		self.open_cv_control = Open_cv_control()
-		self.current_control = self.open_cv_control
-		# self.current_control = self.mouse_control	
+		# self.open_cv_control = Open_cv_control()
+		# self.current_control = self.open_cv_control
+		self.current_control = self.mouse_control	
 		self.running = self.current_control.running
 		self.running_points = self.current_control.running_points
 		self.curve = self.current_control.curve
