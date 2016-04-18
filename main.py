@@ -1,7 +1,7 @@
 import pygame
 import matplotlib
 
-from mouse_control import Mouse_control
+from Control_new import Controller
 from view import View
 from curve import Curve
 

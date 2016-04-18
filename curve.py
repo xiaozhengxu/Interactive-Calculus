@@ -120,7 +120,48 @@ class Line(object):
 
         return (zip(xnew, ynew), zip(xpull, ypull))         # zip the list of x and list of y into (x,y) tuples
 
-    def move_point(self, index, distance, kind='relative'): # currently doesn't change the local Line
+    def move_point(self, index, new_pos, kind='relative'): # currently doesn't change the local Line
+        """
+        Method to adjust the points of a line as it is adjusted/dragged through user input. A line is adjusted when the user pulls its "pulling points". 
+        """
+        pts = self.points
+        distance = float(new_pos[1] - pts[index][1])    # Distance pulling point moved
+
+        s = lambda x: 1/
+
+        if index >= len(pts):
+            print 'Index out of Range'
+            return None
+
+        if kind == 'absolute':
+            factor = 1.5
+            # Absolute change in Distance 					# NOTE: Smoother curve moving
+            for i, pt in enumerate(pts[:index]):
+                pts[i] = (pts[i][0], pts[i][1] + distance / (index-i+1)**0.7)
+                print 'moved', distance / (index-i+1)
+
+            for i, pt, in enumerate(pts[index:]):
+                pts[i+index] = (pts[i+index][0], pts[i+index][1] + distance / (i+1)**0.7)
+                print 'moved', distance / (i+1)
+
+        elif kind == 'relative':
+            rel_d = distance / pts[index][1] 
+            for i, pt in enumerate(pts[:index]):
+                pts[i] = (pts[i][0], pts[i][1] * (1 + (rel_d / (index-i+1))))   # For the line to the left of the adjusted point, shift each value accordintly. The adjustment becomes larger, closer to the point that was adjusted.
+                # print 'moved', 1 + rel_d / (index-i+1)
+
+            for i, pt, in enumerate(pts[index:]):
+                pts[i+index] = (pts[i+index][0], pts[i+index][1] * (1 + (rel_d / (i+1))))   # Similar to above
+                # print 'moved', 1 + rel_d / (i+1)
+        else:
+            print 'Invalid Version'
+            return None
+
+
+
+
+
+    def move_point_old(self, index, distance, kind='relative'): # currently doesn't change the local Line
         """
         Method to adjust the points of a line as it is adjusted/dragged through user input. A line is adjusted when the user pulls its "pulling points". 
         """

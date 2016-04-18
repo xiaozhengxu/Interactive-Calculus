@@ -3,9 +3,9 @@
 """
 import pygame
 import numpy as np
-import argparse
-import imutils
-import cv2
+# import argparse
+# import imutils
+# import cv2
 
 from curve import *
 
@@ -14,16 +14,17 @@ greenUpper=(64, 255, 255)
  
 class Controller(object):
 	def __init__(self):
-		self.modes=[None, 'Mouse drawing','Open CV drawing']
+		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling"]
 		self.running_points = []
 		self.running = True
 		self.curve = None
 		self.last_space = False
 		self.last_press = False
+		self.pull_point = None
 		self.mode = None
 
 	def handle_events(self):
-		print self.mode
+		# print "Mode: ", self.mode
 		for event in pygame.event.get():	
 			if event.type == pygame.QUIT:	# Handle window closing
 				self.running = False
@@ -44,8 +45,30 @@ class Controller(object):
 				print 'Initiated open CV'
 
 			if pygame.mouse.get_pressed()[0] and not self.last_press:
-				self.mode = 'Mouse drawing'
-				self.running_points = []
+				
+				if self.curve:
+
+					mouse_pos = pygame.mouse.get_pos()
+
+					hitbox_radius = 5
+
+					# Find a pulling point within a hitbox
+					# # Search in pull_points and points
+					# for idx, pt in enumerate(self.curve.line.pull_points):
+					# 	if abs(pt[0]-mouse_pos[0]) < hitbox_radius and abs(pt[1]-mouse_pos[1]) < hitbox_radius:
+					# 		self.pull_point = idx
+					# 		print "Pulling point is number:", idx
+					# 		self.mode = 'Mouse pulling'
+
+					# Search in points (Oh dear god the efficiency)
+					for idx, pt in enumerate(self.curve.line.points):
+						if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
+							self.pull_point = idx
+							print "Pulling point is number:", idx
+							self.mode = 'Mouse pulling'
+				else:
+					self.mode = 'Mouse drawing'
+					self.running_points = []
 
 		elif self.mode == 'Mouse drawing':
 
@@ -65,6 +88,13 @@ class Controller(object):
 				self.camera.release()
 				cv2.destroyAllWindows()
 				self.curve = Curve(self.running_points[::len(self.running_points)/15])
+
+		elif self.mode == "Mouse pulling":
+			self.pull_with_mouse()
+
+			if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
+				self.mode = None
+				print "None Mode"
 
 		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
 			self.mode = None
@@ -144,6 +174,14 @@ class Controller(object):
 
 		if mouse_pos != self.running_points[-1] and self.running_points[-1][0] < mouse_pos[0]: # NOTE: This is where we check if the user goes backwards
 			self.running_points.append(mouse_pos)
+
+	def pull_with_mouse(self):
+		# Get new mouse positions
+		mouse_pos = pygame.mouse.get_pos()
+
+		# Move point there
+		self.curve.line.move_point(self.pull_point, mouse_pos, kind='absolute')
+
 
 	def print_points(self):
 		print self.running_points

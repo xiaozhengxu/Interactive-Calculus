@@ -12,7 +12,7 @@ import numpy
 import time
 #Import our own other files 
 from curve import *
-from Control import *
+from Control_new import *
 class View(object):
 	"""
 
@@ -23,7 +23,7 @@ class View(object):
 		self.screen = pygame.display.set_mode((1000, 1000))
 		#screen = pygame.display.get_surface()
 		# self.curve = curve
-		self.controller=Controller()
+		self.controller = Controller()
 	   # self.grid_mode = grid
 
 	def draw_grid(self):
@@ -50,15 +50,30 @@ class View(object):
 		self.controller.handle_events()
 		# print self.controller.curve
 
+		#NOTE: Redraw every time to handle curve movement
+		self.screen.fill(pygame.Color('white'))
+		self.draw_graph(grid=True)
+
 		if self.controller.curve:# len(self.controller.running_points)>1:
 			pygame.draw.lines(self.screen, (255, 0, 0), False, self.controller.curve.line.points, 2)
 			pygame.draw.lines(self.screen, (0, 255, 0), False, self.controller.curve.derivative.points, 2)
 			pygame.draw.lines(self.screen, (0 ,0 ,255), False, self.controller.curve.integral.points, 2)
-		else: 
-			self.screen.fill(pygame.Color('white'))
-			self.draw_graph(grid=True)
+
+			self.draw_pullpts(self.controller.curve.line)
+		# else: 
+		# 	self.screen.fill(pygame.Color('white'))
+		# 	self.draw_graph(grid=True)
 
 		pygame.display.update()
+
+	def draw_pullpts(self, line):
+		radius = 4
+		color = (255,255,0)
+		for pt in line.pull_points:
+			xy = (int(pt[0]), int(pt[1]))
+			pygame.draw.circle(self.screen, color, xy, radius)
+			pygame.draw.circle(self.screen, (0,0,0), xy, radius, 1)
+
 
 	# def draw(self, grid):
 	# 	if 'graph_drawn' not in globals():
