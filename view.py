@@ -12,7 +12,7 @@ import numpy
 import time
 #Import our own other files 
 from curve import *
-from Control_new import *
+from Control import *
 class View(object):
 	"""
 

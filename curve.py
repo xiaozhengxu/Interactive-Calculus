@@ -127,7 +127,7 @@ class Line(object):
         pts = self.points
         distance = float(new_pos[1] - pts[index][1])    # Distance pulling point moved
 
-        s = lambda x: 1/
+        s = lambda x: 1
 
         if index >= len(pts):
             print 'Index out of Range'
@@ -156,9 +156,6 @@ class Line(object):
         else:
             print 'Invalid Version'
             return None
-
-
-
 
 
     def move_point_old(self, index, distance, kind='relative'): # currently doesn't change the local Line
