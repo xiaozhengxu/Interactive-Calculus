@@ -129,6 +129,7 @@ class Line(object):
 
         #s = lambda x: 1/
 
+
         if index >= len(pts):
             print 'Index out of Range'
             return None
@@ -156,9 +157,6 @@ class Line(object):
         else:
             print 'Invalid Version'
             return None
-
-
-
 
 
     def move_point_old(self, index, distance, kind='relative'): # currently doesn't change the local Line

@@ -3,9 +3,9 @@
 """
 import pygame
 import numpy as np
-# import argparse
-# import imutils
-# import cv2
+import argparse
+import imutils
+import cv2
 
 from curve import *
 
@@ -22,6 +22,7 @@ class Controller(object):
 		self.last_press = False
 		self.pull_point = None
 		self.mode = None
+		self.camera = cv2.VideoCapture(0)
 
 	def handle_events(self):
 		# print "Mode: ", self.mode
@@ -39,7 +40,7 @@ class Controller(object):
 		if self.mode == None:
 			if keys[pygame.K_SPACE] and not self.last_space: 
 				self.mode = 'Open CV drawing'
-				self.camera = cv2.VideoCapture(0)
+				# self.open_CV = Open_CV_controller()
 				self.running_points = []
 				self.curve = None
 				print 'Initiated open CV'
@@ -59,7 +60,6 @@ class Controller(object):
 					# 		self.pull_point = idx
 					# 		print "Pulling point is number:", idx
 					# 		self.mode = 'Mouse pulling'
-
 					# Search in points (Oh dear god the efficiency)
 					for idx, pt in enumerate(self.curve.line.points):
 						if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
@@ -107,7 +107,6 @@ class Controller(object):
 	def draw_with_open_cv(self):
 		# Grab the current frame (frame and mask are numpy.ndarray)
 		print self.running_points
-		print cv2.VideoCapture.isOpened()
 		(grabbed, frame) = self.camera.read()
 		print grabbed
 		# Resize the frame, blur it, and convert it to the HSV color space
@@ -178,7 +177,6 @@ class Controller(object):
 	def pull_with_mouse(self):
 		# Get new mouse positions
 		mouse_pos = pygame.mouse.get_pos()
-
 		# Move point there
 		self.curve.line.move_point(self.pull_point, mouse_pos, kind='absolute')
 

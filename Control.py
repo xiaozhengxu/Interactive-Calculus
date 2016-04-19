@@ -3,9 +3,9 @@
 """
 import pygame
 import numpy as np
-# import argparse
-# import imutils
-# import cv2
+import argparse
+import imutils
+import cv2
 
 from curve import *
 
@@ -14,56 +14,137 @@ greenUpper=(64, 255, 255)
 
 class Controller(object):
 	def __init__(self):
-		self.mouse_control = Mouse_control()
-		# self.open_cv_control = Open_cv_control()
-		# self.current_control = self.open_cv_control
-		self.current_control = self.mouse_control	
-		self.running = self.current_control.running
-		self.running_points = self.current_control.running_points
-		self.curve = self.current_control.curve
-
-	def handle_events(self):
-		self.current_control.handle_event()
-		self.running = self.current_control.running
-		self.curve = self.current_control.curve
-		
-class Open_cv_control(object):
-	def __init__(self):
+		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling"]
+		self.open_cv_control = Open_cv_control()
 		self.running_points = []
 		self.running = True
 		self.curve = None
 		self.last_space = False
-		self.mode = 'None'
-		self.camera = cv2.VideoCapture(0)
-		print 'Initiated open CV'
+		self.last_press = False
+		self.pull_point = None
+		self.mode = None
 
-	def handle_event(self):
+	def handle_events(self):
 		print self.mode
-
+		print self.running_points
 		for event in pygame.event.get():	
 			if event.type == pygame.QUIT:	# Handle window closing
+				self.open_cv_control.close_camera()
 				self.running = False
-				self.camera.release()
-				cv2.destroyAllWindows()
 
 		keys = pygame.key.get_pressed() # Returns a tuple of 1s and 0s corresponding to the the pressed keys
 
-		if keys[pygame.K_SPACE] and not self.last_space: # Press space to get into or out of drawing mode
-			if self.mode == 'None':
-				self.mode = 'Drawing'
-			elif self.mode =='Drawing':
-				self.mode = 'None'
-				self.camera.release()
-				cv2.destroyAllWindows()
-				self.curve = Curve(self.running_points[::len(self.running_points)/15])
+		if self.mode == None:
+			if keys[pygame.K_SPACE] and not self.last_space: 
+				self.mode = 'Open CV drawing'
+				self.open_cv_control.running_points = []
+				self.running_points = []
+				self.curve = None
+
+			if pygame.mouse.get_pressed()[0] and not self.last_press:
+
+				if self.curve:
+
+					mouse_pos = pygame.mouse.get_pos()
+
+					hitbox_radius = 5
+
+					# Find a pulling point within a hitbox
+					# # Search in pull_points and points
+					# for idx, pt in enumerate(self.curve.line.pull_points):
+					# 	if abs(pt[0]-mouse_pos[0]) < hitbox_radius and abs(pt[1]-mouse_pos[1]) < hitbox_radius:
+					# 		self.pull_point = idx
+					# 		print "Pulling point is number:", idx
+					# 		self.mode = 'Mouse pulling'
+					# Search in points (Oh dear god the efficiency)
+					for idx, pt in enumerate(self.curve.line.points):
+						if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
+							self.pull_point = idx
+							print "Pulling point is number:", idx
+							self.mode = 'Mouse pulling'
+				else:
+					self.mode = 'Mouse drawing'
+					self.running_points = []
+
+		elif self.mode == 'Mouse drawing':
+
+			self.draw_with_mouse()
+
+			if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
+				self.mode = None
+				if len(self.running_points)>15:
+					self.curve = Curve(self.running_points[::len(self.running_points)/15])  #[::len(self.running_points)/15]
+				else:
+					print 'Not enough points registered'
+
+		elif self.mode == 'Open CV drawing':
+			try:
+				self.open_cv_control.draw_with_open_cv()
+			except:
+				
+				open_cv_control.close_camera()
+
+			self.running_points = self.open_cv_control.running_points
+
+			if keys[pygame.K_SPACE] and not self.last_space:
+				self.mode = None
+				if len(self.running_points)>15:
+					self.curve = Curve(self.running_points[::len(self.running_points)/15])  #[::len(self.running_points)/15]
+				else:
+					print 'Not enough points registered'
+
+		elif self.mode == "Mouse pulling":
+			self.pull_with_mouse()
+
+			if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
+				self.mode = None
+
+		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
+			self.mode = None
+			self.running_points = []
+			self.open_cv_control.running_points = []
+			self.curve = None
 
 		self.last_space = keys[pygame.K_SPACE] # Keep track of the last Space 
+		self.last_press = pygame.mouse.get_pressed()[0]
 
+	def draw_with_mouse(self):
+		'''This method is currently called by view.draw_input()
+
+		Allows the user to draw several lines/curves in discrete intervals with mouse. 
+		Press leftbutton to start drawing, move around the mouse to draw (or hold down the lef button while drawing.
+		Press leftbutton again to stop drawing. Press rightbutton to clear screen.
+
+		running_points stores the points of the user's curve as nested lists. (if the user draws a single curve, it would be [[(x,y)...]]
+
+		Next implementation would be to stop drawing when the leftbutton is released (MOUSEBUTTONUP doesn't work right now).'''
+
+		mouse_pos = pygame.mouse.get_pos()
+		# Add points based off of mouse position
+		if not self.running_points:
+			self.running_points.append(mouse_pos)
+
+		if mouse_pos != self.running_points[-1] and self.running_points[-1][0] < mouse_pos[0]: # NOTE: This is where we check if the user goes backwards
+			self.running_points.append(mouse_pos)
+
+
+	def pull_with_mouse(self):
+		# Get new mouse positions
+		mouse_pos = pygame.mouse.get_pos()
+		# Move point there
+		self.curve.line.move_point(self.pull_point, mouse_pos, kind='absolute')
+
+
+class Open_cv_control(object):
+	def __init__(self):
+		self.running_points = []
+		self.camera = cv2.VideoCapture(0)
+		print 'Initiated open CV'
+
+	def draw_with_open_cv(self):
 		# Grab the current frame (frame and masl are numpy.ndarray)
-		if self.mode == 'Drawing':
-			print self.running_points
-			(grabbed, frame) = self.camera.read()
-
+		(grabbed, frame) = self.camera.read()
+		if grabbed:
 			# Resize the frame, blur it, and convert it to the HSV color space
 			frame = imutils.resize(frame, width=600)
 			hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -83,8 +164,7 @@ class Open_cv_control(object):
 			cnts = cv2.findContours(hfmask.copy(), cv2.RETR_CCOMP,
 				cv2.CHAIN_APPROX_SIMPLE)[-2]
 			center = None
-
-			# Only proceed if at least one contour was found
+		# Only proceed if at least one contour was found
 			if len(cnts) > 0:
 				# Find the largest contour in the mask, then use
 				# it to compute the minimum enclosing circle and
@@ -93,78 +173,39 @@ class Open_cv_control(object):
 				((x, y), radius) = cv2.minEnclosingCircle(c)
 
 				# Only proceed if the radius meets a minimum size
-				if radius > 30:
+				print radius
+				if radius > 20:
 					pts=(int(x),int(y))
 
 					cv2.circle(hfframe, pts, int(radius),(0, 255, 255), 2)
 
 					if not self.running_points:
+						print 'appending points'
 						self.running_points.append(pts)
 
 					if pts != self.running_points[-1] and self.running_points[-1][0] < pts[0]: 	# Add point if it is different than the previous
-						self.running_points.append((int(x),int(y)))								# and if it doesn't curl back (last x < new x)
-			# cv2.imshow("Mask", hfmask)
-			cv2.imshow("Horizontal flip", frame)
+						print 'appending points'
+						self.running_points.append(pts)								# and if it doesn't curl back (last x < new x)
+			
+			for i in xrange(1, len(self.running_points)):
+				# if either of the tracked points are None, ignore
+				# them
+				if self.running_points[i - 1] is None or self.running_points[i] is None:
+					continue
+				# otherwise, compute the thickness of the line and
+				# draw the connecting lines
+				thickness = 2
+				cv2.line(hfframe, self.running_points[i - 1], self.running_points[i], (0, 0, 255), thickness)
 
-		
-class Mouse_control(object):
+			cv2.imshow("Mask", hfmask)
+			cv2.imshow("Horizontal flip", hfframe)
+			cv2.waitKey(1)
+	def close_camera(self):
+		self.camera.release()
+		cv2.destroyAllWindows()
 
-	def __init__(self):
-		self.running_points = []
-		self.curve = None
-		self.running = True
-		self.mode = None 
-		self.last_press = False
 
-	def handle_event(self):
-		'''This method is currently called by view.draw_input()
-
-		Allows the user to draw several lines/curves in discrete intervals with mouse. 
-		Press leftbutton to start drawing, move around the mouse to draw (or hold down the lef button while drawing.
-		Press leftbutton again to stop drawing. Press rightbutton to clear screen.
-
-		running_points stores the points of the user's curve as nested lists. (if the user draws a single curve, it would be [[(x,y)...]]
-
-		Next implementation would be to stop drawing when the leftbutton is released (MOUSEBUTTONUP doesn't work right now).'''
-		for event in pygame.event.get(): # Check for game quit
-			if event.type == pygame.QUIT:
-				self.running = False
-
-		if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
-			if self.mode == 'Drawing':
-				self.mode = None
-				print "None Mode"
-				self.curve = Curve(self.running_points[::len(self.running_points)/15])  #[::len(self.running_points)/15]
-				# print self.curve
-			else:
-				print "Drawing mode"
-				self.mode = 'Drawing'
-
-		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
-			print "Clear Mode"
-			self.mode = 'Clear'
-
-		if self.mode == 'Drawing':
-			mouse_pos = pygame.mouse.get_pos()
-
-			# Add points based off of mouse position
-			if not self.running_points:
-				self.running_points.append(mouse_pos)
-
-			if mouse_pos != self.running_points[-1] and self.running_points[-1][0] < mouse_pos[0]: # NOTE: This is where we check if the user goes backwards
-				self.running_points.append(mouse_pos)
-
-		if self.mode == 'Clear':
-			self.running_points = []	# Delete all of the curves
-			self.curve = None
-			self.mode = None
-		# print self.mode
-
-		self.last_press = pygame.mouse.get_pressed()[0]
-
-	def print_points(self):
-		print self.running_points
-
+	
 # '''This method is currently called by view.draw_input()
 
 # 		Allows the user to draw several lines/curves in discrete intervals with mouse. 
