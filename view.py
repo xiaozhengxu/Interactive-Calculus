@@ -24,16 +24,18 @@ class View(object):
 		pygame.init()
 		self.screen = pygame.display.set_mode((1000, 1000))
 		self.controller = Controller()
-		self.model = Model()
+
+		
 
 	def draw_grid(self):
 		"""
 		Method to draw grid if user wants
 		"""
-		if self.model.grid_status == True:
-			for i in range(0, 1000, 20):
-				pygame.draw.line(self.screen, (128,128,128), (i, 0), (i, 1000), 1)
-				pygame.draw.line(self.screen, (128,128,128), (0, i), (1000, i), 1)
+		
+		for i in range(0, 1000, 20):
+			pygame.draw.line(self.screen, (128,128,128), (i, 0), (i, 1000), 1)
+			pygame.draw.line(self.screen, (128,128,128), (0, i), (1000, i), 1)
+
 
 	def draw_graph(self):
 		"""
@@ -55,9 +57,9 @@ class View(object):
 
 		#NOTE: Redrawn every time to handle curve movement
 		self.screen.fill(pygame.Color('white'))
-		if self.model.grid_status:	# True, False, or None
+		if self.controller.model.grid_status:	# True, False, 
 			self.draw_grid()
-		if self.model.legend_status:	# True, False, or None
+		if self.controller.model.legend_status:	# True, False, 
 			self.draw_legend()
 		self.draw_graph()
 

@@ -3,11 +3,12 @@
 """
 import pygame
 import numpy as np
-import argparse
-import imutils
-import cv2
+# import argparse
+# import imutils
+#import cv2
 
 from curve import *
+from Model import *
 
 greenLower=(29, 86, 6)
 greenUpper=(64, 255, 255)
@@ -15,14 +16,17 @@ greenUpper=(64, 255, 255)
 class Controller(object):
 	def __init__(self):
 		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling"]
-		self.open_cv_control = Open_cv_control()
+		#self.open_cv_control = Open_cv_control()
 		self.running_points = []
 		self.running = True
 		self.curve = None
 		self.last_space = False
 		self.last_press = False
+		self.last_g = False
 		self.pull_point = None
 		self.mode = None
+		self.model = Model()
+
 
 	def handle_events(self):
 		print self.mode
@@ -49,14 +53,6 @@ class Controller(object):
 
 					hitbox_radius = 5
 
-					# Find a pulling point within a hitbox
-					# # Search in pull_points and points
-					# for idx, pt in enumerate(self.curve.line.pull_points):
-					# 	if abs(pt[0]-mouse_pos[0]) < hitbox_radius and abs(pt[1]-mouse_pos[1]) < hitbox_radius:
-					# 		self.pull_point = idx
-					# 		print "Pulling point is number:", idx
-					# 		self.mode = 'Mouse pulling'
-					# Search in points (Oh dear god the efficiency)
 					for idx, pt in enumerate(self.curve.line.points):
 						if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
 							self.pull_point = idx
@@ -105,8 +101,14 @@ class Controller(object):
 			self.open_cv_control.running_points = []
 			self.curve = None
 
+		if keys[pygame.K_g] and not self.last_g:
+			
+			self.model.grid_update()
+
 		self.last_space = keys[pygame.K_SPACE] # Keep track of the last Space 
 		self.last_press = pygame.mouse.get_pressed()[0]
+		self.last_g = keys[pygame.K_g]
+		
 
 	def draw_with_mouse(self):
 		'''This method is currently called by view.draw_input()
