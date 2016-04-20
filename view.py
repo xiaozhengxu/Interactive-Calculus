@@ -71,7 +71,10 @@ class View(object):
 			pygame.draw.lines(self.screen, (0, 255, 0), False, self.controller.curve.derivative.points, 2)
 			pygame.draw.lines(self.screen, (0 ,0, 255), False, self.controller.curve.integral.points, 2)
 
-			
+			if self.controller.pull_mode == "Handle":
+				for pt in self.controller.curve.line.pull_points:
+					pt_int = (int(pt[0]), int(pt[1]))
+					pygame.draw.circle(self.screen, (0,0,0), pt_int, 3)
 		pygame.display.update()
 
 

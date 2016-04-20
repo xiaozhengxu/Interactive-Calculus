@@ -27,6 +27,8 @@ class Controller(object):
 		self.mode = None
 		self.model = Model()
 
+		self.pull_mode = "Handle"
+
 
 	def handle_events(self):
 		# print self.mode
@@ -56,11 +58,18 @@ class Controller(object):
 
 					hitbox_radius = 5
 
-					for idx, pt in enumerate(self.curve.line.points):
-						if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
-							self.pull_point = idx
-							print "Pulling point is number:", idx
-							self.mode = 'Mouse pulling'
+					if self.pull_mode == "Handle":
+						for idx, pt in enumerate(self.curve.line.pull_points):
+							if abs(pt[0]-mouse_pos[0]) < hitbox_radius and abs(pt[1]-mouse_pos[1]) < hitbox_radius:
+								self.pull_point = idx
+								print "Pulling point is number:", idx
+								self.mode = 'Mouse pulling'
+					elif self.pull_mode == "Curve":
+						for idx, pt in enumerate(self.curve.line.points):
+							if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
+								self.pull_point = idx
+								print "Pulling point is number:", idx
+								self.mode = 'Mouse pulling'
 				else:
 					self.mode = 'Mouse drawing'
 					self.running_points = []
@@ -72,7 +81,7 @@ class Controller(object):
 			if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
 				self.mode = None
 				if len(self.running_points)>15:
-					self.curve = Curve(self.running_points[::len(self.running_points)/15])  #[::len(self.running_points)/15]
+					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  #[::len(self.running_points)/15]
 				else:
 					print 'Not enough points registered'
 
@@ -88,7 +97,7 @@ class Controller(object):
 			if keys[pygame.K_SPACE] and not self.last_space:
 				self.mode = None
 				if len(self.running_points)>15:
-					self.curve = Curve(self.running_points[::len(self.running_points)/15])  #[::len(self.running_points)/15]
+					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  #[::len(self.running_points)/15]
 				else:
 					print 'Not enough points registered'
 
