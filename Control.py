@@ -35,7 +35,10 @@ class Controller(object):
 		# print self.running_points
 		for event in pygame.event.get():	
 			if event.type == pygame.QUIT:	# Handle window closing
-				self.open_cv_control.close_camera()
+				try: 
+					self.open_cv_control.close_camera()
+				except:
+					print "OpenCV Not Loaded"
 				self.running = False
 
 		keys = pygame.key.get_pressed() # Returns a tuple of 1s and 0s corresponding to the the pressed keys
@@ -107,7 +110,10 @@ class Controller(object):
 		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
 			self.mode = None
 			self.running_points = []
-			self.open_cv_control.running_points = []
+			try:
+				self.open_cv_control.running_points = []
+			except:
+				print "OpenCV Not Loaded"
 			self.curve = None
 
 		if keys[pygame.K_g] and not self.last_g:
@@ -118,6 +124,7 @@ class Controller(object):
 		self.last_press = pygame.mouse.get_pressed()[0]
 		self.last_g = keys[pygame.K_g]
 		self.last_c = keys[pygame.K_c]
+
 
 	def draw_with_mouse(self):
 		'''This method is currently called by view.draw_input()
@@ -143,8 +150,8 @@ class Controller(object):
 		# Get new mouse positions
 		mouse_pos = pygame.mouse.get_pos()
 		# Move point there
-		self.curve.line.move_point(self.pull_point, mouse_pos, kind='absolute')
-
+		# self.curve.line.move_point(self.pull_point, mouse_pos, kind='sigmoid')
+		self.curve.move_point(self.pull_point, mouse_pos, line="line")
 
 class Open_cv_control(object):
 	def __init__(self):

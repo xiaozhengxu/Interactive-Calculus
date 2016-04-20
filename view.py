@@ -50,7 +50,8 @@ class View(object):
 		pass
 
 	def draw(self):
-		"""Displays the user's drawing input on the screen
+		"""
+		Displays the user's drawing input on the screen
 		"""
 		
 		self.controller.handle_events()

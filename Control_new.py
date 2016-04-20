@@ -178,7 +178,7 @@ class Controller(object):
 		# Get new mouse positions
 		mouse_pos = pygame.mouse.get_pos()
 		# Move point there
-		self.curve.line.move_point(self.pull_point, mouse_pos, kind='absolute')
+		self.curve.line.move_point(self.pull_point, mouse_pos, kind='sigmoid')
 
 
 	def print_points(self):
