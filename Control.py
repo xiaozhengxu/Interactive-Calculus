@@ -3,26 +3,28 @@
 """
 import pygame
 import numpy as np
-# import argparse
-# import imutils
-#import cv2
+import argparse
+import imutils
+import cv2
 
 from curve import *
 from Model import *
 
-greenLower=(29, 86, 6)
-greenUpper=(64, 255, 255)
+#define HSV color range of a tennis ball: open cv has range: H: 0-180, S: 0 -255, V: 0-255
+colors = {'bright_green':[(29, 6, 84),(64, 255, 255)],'bright_pink':[(145,6,84),(175,255,255)]}
 
-class Controller(object):
+
+class Controller(object): 
 	def __init__(self):
-		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling"]
-		#self.open_cv_control = Open_cv_control()
+		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating']
+		self.open_cv_control = Open_cv_control()
 		self.running_points = []
 		self.running = True
 		self.curve = None
 		self.last_space = False
 		self.last_press = False
 		self.last_g = False
+		self.last_c = False
 		self.pull_point = None
 		self.mode = None
 		self.model = Model()
@@ -30,7 +32,7 @@ class Controller(object):
 
 	def handle_events(self):
 		print self.mode
-		print self.running_points
+		# print self.running_points
 		for event in pygame.event.get():	
 			if event.type == pygame.QUIT:	# Handle window closing
 				self.open_cv_control.close_camera()
@@ -44,6 +46,9 @@ class Controller(object):
 				self.open_cv_control.running_points = []
 				self.running_points = []
 				self.curve = None
+
+			if keys[pygame.K_c] and not self.last_c:
+				self.mode = 'Open CV calibrating'
 
 			if pygame.mouse.get_pressed()[0] and not self.last_press:
 
@@ -73,11 +78,15 @@ class Controller(object):
 				else:
 					print 'Not enough points registered'
 
+		elif self.mode == 'Open CV calibrating':
+			self.open_cv_control.calibrate_color()
+			if keys[pygame.K_c] and not self.last_c:
+				self.mode = None
+
 		elif self.mode == 'Open CV drawing':
 			try:
 				self.open_cv_control.draw_with_open_cv()
-			except:
-				
+			except:	
 				open_cv_control.close_camera()
 
 			self.running_points = self.open_cv_control.running_points
@@ -108,7 +117,7 @@ class Controller(object):
 		self.last_space = keys[pygame.K_SPACE] # Keep track of the last Space 
 		self.last_press = pygame.mouse.get_pressed()[0]
 		self.last_g = keys[pygame.K_g]
-		
+		self.last_c = keys[pygame.K_c]
 
 	def draw_with_mouse(self):
 		'''This method is currently called by view.draw_input()
@@ -141,6 +150,10 @@ class Open_cv_control(object):
 	def __init__(self):
 		self.running_points = []
 		self.camera = cv2.VideoCapture(0)
+		self.prev_avg_col = (0,0,0)
+		self.color = 'bright_pink'
+		self.draw_color_lower = colors[self.color][0]
+		self.draw_color_upper = colors[self.color][1]
 		print 'Initiated open CV'
 
 	def draw_with_open_cv(self):
@@ -153,7 +166,7 @@ class Open_cv_control(object):
 
 			# Construct a mask for the color "green", then perform a series of dilations and erosions to remove any small
 			# blobs left in the mask
-			mask = cv2.inRange(hsv, greenLower, greenUpper)
+			mask = cv2.inRange(hsv, self.draw_color_lower, self.draw_color_upper)
 			mask = cv2.erode(mask, None, iterations=2)
 			mask = cv2.dilate(mask, None, iterations=2)
 
@@ -176,7 +189,7 @@ class Open_cv_control(object):
 
 				# Only proceed if the radius meets a minimum size
 				print radius
-				if radius > 20:
+				if radius > 40:
 					pts=(int(x),int(y))
 
 					cv2.circle(hfframe, pts, int(radius),(0, 255, 255), 2)
@@ -202,6 +215,25 @@ class Open_cv_control(object):
 			cv2.imshow("Mask", hfmask)
 			cv2.imshow("Horizontal flip", hfframe)
 			cv2.waitKey(1)
+	def calibrate_color(self):
+		(grabbed, frame) = self.camera.read()
+		if grabbed:
+			frame_size = frame.shape
+			frame_ct = (frame_size[1]/2,frame_size[0]/2)
+			# print frame_ct
+			pixels = [frame[i,j] for i in range(frame_ct[0]-50,frame_ct[0]+50) for j in range(frame_ct[1]-50,frame_ct[1]+50)]
+			self.avg_col= (int(np.mean([px[0] for px in pixels])),int(np.mean([px[1] for px in pixels])),int(np.mean([px[2] for px in pixels])))
+			if self.avg_col != self.prev_avg_col:
+				print self.avg_col
+			self.prev_avg_col = self.avg_col
+			# print frame[frame_ct[0],frame_ct[1]]
+			cv2.circle(frame, frame_ct, 20,(159,124,121), -1) #(50,50,100)- pink color(70,70,110)
+
+			cv2.rectangle(frame, (frame_ct[0]-50,frame_ct[1]-50),(frame_ct[0]+50,frame_ct[1]+50), (0,255,255),2)
+			cv2.imshow('Frame',frame)
+			cv2.waitKey(1)
+
+
 	def close_camera(self):
 		self.camera.release()
 		cv2.destroyAllWindows()
@@ -221,9 +253,7 @@ class Open_cv_control(object):
 
 # if __name__ == "main":
 # 	for testing
-# 	mouse=Mouse_control()
-# 	counter=1
-# 	while counter<1000:
-# 		counter+=1
-# 		mouse.handle_event()
+# 	c = Open_cv_control()
+# 	Open_cv_control.calibrate_color()
+# 	if 
 
