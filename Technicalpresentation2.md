@@ -4,6 +4,8 @@
 
 ##### Background
 
+The main idea of our project is to create a interactive math app that helps individuals understand calculus. We want to allow users to interact with the Fundamental Theorem of Calculus in a geometric and visual way. The project is implemented using the Model, View, Controller structure and the display is created using Pygame. The project also uses OpenCV to allow control through webcam. This program allows the user to draw an input line and then displays the line’s integral and derivative. After drawing the input, the user can adjust the line, exploring how the integral and derivative correspondingly change.
+
 ##### Key Questions
 
 Currently our team has many ideas  which we want to implement, but a shortening time frame in which to do so. What we want out of this review session is a clear idea of which elements we should implement first and which should wait. We feel that an overview, code demonstration and the chance to download and run our code will provide sufficient background for this. We will provide a paper survey for feedback on which of the features we should implement. The features we want feedback on are as follows:
