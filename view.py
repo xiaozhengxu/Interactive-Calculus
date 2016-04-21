@@ -80,7 +80,8 @@ class View(object):
 
 
 	def draw(self):
-		"""Displays the user's drawing input on the screen
+		"""
+		Displays the user's drawing input on the screen
 		"""
 		
 		self.controller.handle_events()
@@ -102,7 +103,10 @@ class View(object):
 			pygame.draw.lines(self.screen, (160, 32, 240), False, self.controller.curve.derivative.points, 3)
 			pygame.draw.lines(self.screen, (0 ,255, 0), False, self.controller.curve.integral.points, 3)
 
-			
+			if self.controller.pull_mode == "Handle":
+				for pt in self.controller.curve.line.pull_points:
+					pt_int = (int(pt[0]), int(pt[1]))
+					pygame.draw.circle(self.screen, (0,0,0), pt_int, 3)
 		pygame.display.update()
 
 
