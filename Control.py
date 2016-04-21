@@ -228,13 +228,13 @@ class Open_cv_control(object):
 			frame_size = frame.shape
 			frame_ct = (frame_size[1]/2,frame_size[0]/2)
 			# print frame_ct
-			pixels = [frame[i,j] for i in range(frame_ct[0]-50,frame_ct[0]+50) for j in range(frame_ct[1]-50,frame_ct[1]+50)]
-			self.avg_col= (int(np.mean([px[0] for px in pixels])),int(np.mean([px[1] for px in pixels])),int(np.mean([px[2] for px in pixels])))
-			if self.avg_col != self.prev_avg_col:
-				print self.avg_col
-			self.prev_avg_col = self.avg_col
-			# print frame[frame_ct[0],frame_ct[1]]
-			cv2.circle(frame, frame_ct, 20,(159,124,121), -1) #(50,50,100)- pink color(70,70,110)
+			# pixels = [frame[i,j] for i in range(frame_ct[0]-10,frame_ct[0]+10) for j in range(frame_ct[1]-10,frame_ct[1]+10)]
+			# self.avg_col= (int(np.mean([px[0] for px in pixels])),int(np.mean([px[1] for px in pixels])),int(np.mean([px[2] for px in pixels])))
+			# if self.avg_col != self.prev_avg_col:
+			# 	print self.avg_col
+			# self.prev_avg_col = self.avg_col
+			print frame[frame_ct[0],frame_ct[1]]
+			cv2.circle(frame, frame_ct, 20,(142, 37, 149), -1) #bright pink color
 
 			cv2.rectangle(frame, (frame_ct[0]-50,frame_ct[1]-50),(frame_ct[0]+50,frame_ct[1]+50), (0,255,255),2)
 			cv2.imshow('Frame',frame)
@@ -247,16 +247,6 @@ class Open_cv_control(object):
 
 
 	
-# '''This method is currently called by view.draw_input()
-
-# 		Allows the user to draw several lines/curves in discrete intervals with mouse. 
-# 		Press leftbutton to start drawing, move around the mouse to draw (or hold down the lef button while drawing.
-# 		Press leftbutton again to stop drawing. Press rightbutton to clear screen.
-
-# 		running_points stores the points of the user's curve as nested lists. (if the user draws a single curve, it would be [[(x,y)...]]
-
-# 		Next implementation would be to stop drawing when the leftbutton is released (MOUSEBUTTONUP doesn't work right now).'''
-
 
 # if __name__ == "main":
 # 	for testing
