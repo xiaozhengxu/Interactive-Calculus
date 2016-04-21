@@ -7,17 +7,17 @@ Our agenda is as follows:
 
 Overview of our project
 	
-   Refresher on our project goals and status
+   -Refresher on our project goals and status
 
-   UML diagram and explanation of code structure
+   -UML diagram and explanation of code structure
 
 Demonstration of our code
 
 Technical questions 
 
-   Question about OpenCV color calibration
+   -Question about OpenCV color calibration
 
-   Question about adjusting drawn curves
+   -Question about adjusting drawn curves
 
 Try out our program!
 
