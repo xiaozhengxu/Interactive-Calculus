@@ -3,9 +3,12 @@
 """
 import pygame
 import numpy as np
-import argparse
-import imutils
-import cv2
+try:
+	import argparse
+	import imutils
+	import cv2
+except:
+	print "Open CV libraries not loaded."
 
 from curve import *
 from Model import *
@@ -17,7 +20,10 @@ colors = {'bright_green':[(29, 6, 84),(64, 255, 255)],'bright_pink':[(145,6,84),
 class Controller(object): 
 	def __init__(self):
 		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating']
-		self.open_cv_control = Open_cv_control()
+		try:
+			self.open_cv_control = Open_cv_control()
+		except:
+			pass
 		self.running_points = []
 		self.running = True
 		self.curve = None
