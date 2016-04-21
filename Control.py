@@ -23,14 +23,14 @@ class Controller(object):
 		self.last_space = False
 		self.last_press = False
 		self.last_g = False
+		self.last_l = False
 		self.pull_point = None
 		self.mode = None
 		self.model = Model()
 
 
 	def handle_events(self):
-		print self.mode
-		print self.running_points
+		
 		for event in pygame.event.get():	
 			if event.type == pygame.QUIT:	# Handle window closing
 				self.open_cv_control.close_camera()
@@ -101,13 +101,16 @@ class Controller(object):
 			self.open_cv_control.running_points = []
 			self.curve = None
 
+		""" Stuff to change grid, legend etc."""
 		if keys[pygame.K_g] and not self.last_g:
-			
 			self.model.grid_update()
+		if keys[pygame.K_l] and not self.last_l:
+			self.model.legend_update()
 
 		self.last_space = keys[pygame.K_SPACE] # Keep track of the last Space 
 		self.last_press = pygame.mouse.get_pressed()[0]
 		self.last_g = keys[pygame.K_g]
+		self.last_l = keys[pygame.K_l]
 		
 
 	def draw_with_mouse(self):
