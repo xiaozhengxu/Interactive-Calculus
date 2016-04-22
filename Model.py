@@ -8,9 +8,9 @@ class Model(object):
 	"""
 
 	def __init__(self):
-		self.grid_status = True
+		self.grid_status = False
 		self.grid_drawn = False
-		self.legend_status = False
+		self.legend_status = True
 		
 
 
@@ -28,6 +28,7 @@ class Model(object):
 			self.legend_status = False
 		elif self.legend_status == False:
 			self.legend_status = True
+		# self.legend_redraw = True
 
 
 
