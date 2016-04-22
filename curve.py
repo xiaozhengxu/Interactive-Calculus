@@ -2,6 +2,13 @@ from scipy import interpolate
 import numpy as np
 import math
 
+def trap(a, b):
+	"""
+	Take points a, b which are (x,y) tuples, and find the trapezoidal area.
+	"""
+	dx = b[0]-a[0]
+	return (a[1]+b[1])*dx/2.0
+
 class Curve(object):
 	"""
 	Takes in an of tuples. Curve creates three Line objects which are the input line, derivative of that line and integral of the same. These are initialized in the init. 
@@ -9,14 +16,16 @@ class Curve(object):
 
 	"""
 
-	def __init__(self, points):
+	def __init__(self, points, pull_mode):
 		"""
 		Initializes the input points as a Line and finds the corresponding derivative and integral through methods of Line. Input points must be smoothed.
 		The derivative and integral of a smooth line will be smooth without smoothening.
 		"""
-		self.line = Line(points)
-		self.derivative = Line(self.line.derive(), smooth_bool=True)
-		self.integral = Line(self.line.integrate(), smooth_bool=True)
+		self.pull_mode = pull_mode
+
+		self.line = Line(points, pull_mode=self.pull_mode)
+		self.derivative = Line(self.line.derive(), smooth_bool=True, pull_mode=self.pull_mode)
+		self.integral = Line(self.line.integrate(), smooth_bool=True, pull_mode=self.pull_mode)
 
 	def move_point(self, handle, new_pos, line='line'):
 		"""
@@ -26,21 +35,26 @@ class Curve(object):
 		"""
 		if line == 'line':
 			self.line.move_point(handle, new_pos, kind="sigmoid")
+			if self.pull_mode == "Handle":
+				pass
+				# Re-interpolate the line through the moved handle points
+				self.line = Line(self.line.pull_points, keep_points=True)
 
-			self.derivative = Line(self.line.derive(), smooth_bool=True)
-			self.integral = Line(self.line.integrate(), smooth_bool=True)
+			self.derivative = Line(self.line.derive(), smooth_bool=True, pull_mode=self.pull_mode)
+			self.integral = Line(self.line.integrate(), smooth_bool=True, pull_mode=self.pull_mode)
 
 		elif line == 'derivative':
 			self.derivative.move_point(handle, new_pos, kind="sigmoid")
 
-			self.line = Line(self.derivative.integrate(), smooth_bool=True) # The new line will be the integral of the changed derivative
-			self.integral = Line(self.line.integrate(), smooth_bool=True)   # Back to normal
+			self.line = Line(self.derivative.integrate(), smooth_bool=True, pull_mode=self.pull_mode) # The new line will be the integral of the changed derivative
+			self.integral = Line(self.line.integrate(), smooth_bool=True, pull_mode=self.pull_mode)   # Back to normal
 
 		elif line == 'integral':
 			self.integral.move_point(handle, new_pos, kind="sigmoid")
 
-			self.line = Line(self.integral.derive(), smooth_bool=True) # The new line will be the derivative of the changed integral
-			self.derivative = Line(self.line.derive(), smooth_bool=True)    # Back to normal
+			self.line = Line(self.integral.derive(), smooth_bool=True, pull_mode=self.pull_mode) # The new line will be the derivative of the changed integral
+			self.derivative = Line(self.line.derive(), smooth_bool=True, pull_mode=self.pull_mode)    # Back to normal
+
 
 	def draw_to_plot(self, variables=['line', 'derivative', 'integral']):
 		"""
@@ -75,18 +89,23 @@ class Line(object):
 	A class that takes in list of points. Contains attributes to smooth, derive, integrate, and adjust itself.
 	"""
 
-	def __init__(self, points, pull_pts_num=7, smooth_bool=False):  
+	def __init__(self, points, pull_pts_num=7, smooth_bool=False, keep_points=False, pull_mode="Handle"):  
 		"""
 		Initializes a line class. If the line is not considered smooth, the smoothen() method is called.
 		""" 
 		print "Making Line"
+		self.pull_mode = pull_mode
 		if smooth_bool:     # If the points are smooth, don't bother smoothening the curve
 			self.points = points
 			print len(points)
 			self.pull_points = (0,0)  
 			#points[::len(points)/pull_pts_num]
 		else:
-			self.points, self.pull_points = self.smoothen(points, pull_pts_num=pull_pts_num)
+			if keep_points:
+				self.points = self.smoothen(points, pull_pts_num=pull_pts_num)[0]
+				self.pull_points = points
+			else:
+				self.points, self.pull_points = self.smoothen(points, pull_pts_num=pull_pts_num)
 
 	def __index__(self, idx):
 		"""
@@ -125,8 +144,14 @@ class Line(object):
 		"""
 		Method to adjust the points of a line as it is adjusted/dragged through user input. A line is adjusted when the user pulls its "pulling points". 
 		"""
-		pts = self.points
-		distance = float(new_pos[1] - pts[index][1])    # Distance pulling point moved
+		if self.pull_mode == "Curve":
+			pts = self.points
+		elif self.pull_mode == "Handle":
+			pts = self.pull_points
+			kind = None
+
+		distance_y = float(new_pos[1] - pts[index][1])    # Distance pulling point moved
+
 
 		if index >= len(pts):
 			print 'Index out of Range'
@@ -136,25 +161,29 @@ class Line(object):
 			factor = 1.5
 			# Absolute change in Distance 					# NOTE: Smoother curve moving
 			for i, pt in enumerate(pts[:index]):
-				pts[i] = (pts[i][0], pts[i][1] + distance / (index-i+1)**0.7)
-				print 'moved', distance / (index-i+1)
+				pts[i] = (pts[i][0], pts[i][1] + distance_y / (index-i+1)**0.7)
+				print 'moved', distance_y / (index-i+1)
 
 			for i, pt, in enumerate(pts[index:]):
-				pts[i+index] = (pts[i+index][0], pts[i+index][1] + distance / (i+1)**0.7)
-				print 'moved', distance / (i+1)
+				pts[i+index] = (pts[i+index][0], pts[i+index][1] + distance_y / (i+1)**0.7)
+				print 'moved', distance_y / (i+1)
 
 		elif kind == 'sigmoid':
 			sigmoid_size = 1/3
-			S = lambda d: 1/(1+math.exp(d/2.0-6)) # Sigmoid function
+			S = lambda d: 1/(1+math.exp(d/2.0-4)) # Sigmoid function
 
 			for i, pt in enumerate(pts):
-				pts[i] = (pts[i][0], pts[i][1] + distance * (S(abs(index-i))+1-S(0)))
+				pts[i] = (pts[i][0], pts[i][1] + distance_y * (S(abs(index-i))+1-S(0)))
 
 		elif kind == 'pull point':
-			pass
+			p_pts = self.pull_points
+			S = lambda d: 1/(1+math.exp^(2*x-4)) # Sigmoid function
+
+			for i, pt in enumerate(pts):
+				p_pts[i] = (p_pts[i][0], p_pts[i][1] + distance_y * (S(abs(index-i))+1-S(0)))
 
 		elif kind == 'relative':
-			rel_d = distance / pts[index][1] 
+			rel_d = distance_y / pts[index][1] 
 			for i, pt in enumerate(pts[:index]):
 				pts[i] = (pts[i][0], pts[i][1] * (1 + (rel_d / (index-i+1))))   # For the line to the left of the adjusted point, shift each value accordintly. The adjustment becomes larger, closer to the point that was adjusted.
 				# print 'moved', 1 + rel_d / (index-i+1)
@@ -162,6 +191,13 @@ class Line(object):
 			for i, pt, in enumerate(pts[index:]):
 				pts[i+index] = (pts[i+index][0], pts[i+index][1] * (1 + (rel_d / (i+1))))   # Similar to above
 				# print 'moved', 1 + rel_d / (i+1)
+		elif kind == None:
+			# Only move the selected point (used when moving handles)
+			distance_x = float(new_pos[0] - pts[index][0])
+
+			pts[index] = (pts[index][0] + distance_x, pts[index][1] + distance_y) # TODO: Keep points in order
+			
+
 		else:
 			print 'Invalid Version'
 			return None
@@ -243,13 +279,6 @@ class Line(object):
 
 		integral = [(pt[0], 500+(pt[1]-C)/500) for pt in integral] # WEIRD SCALING 
 		return integral
-
-def trap(a, b):
-	"""
-	Take points a, b which are (x,y) tuples, and find the trapezoidal area.
-	"""
-	dx = b[0]-a[0]
-	return (a[1]+b[1])*dx/2.0
 
 
 

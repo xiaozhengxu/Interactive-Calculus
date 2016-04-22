@@ -11,8 +11,7 @@ from curve import *
 from Model import *
 
 #define HSV color range of a tennis ball: open cv has range: H: 0-180, S: 0 -255, V: 0-255
-colors = {'bright_green':[(29, 6, 84),(64, 255, 255)],'bright_pink':[(145,6,84),(175,255,255)]}
-
+colors = {'bright_green':[(29, 84, 6),(64, 255, 255)],'bright_pink':[(145,84,6),(175,255,255)]}
 
 class Controller(object): 
 	def __init__(self):
@@ -28,6 +27,8 @@ class Controller(object):
 		self.pull_point = None
 		self.mode = None
 		self.model = Model()
+
+		self.pull_mode = "Handle"
 
 
 	def handle_events(self):
@@ -61,11 +62,18 @@ class Controller(object):
 
 					hitbox_radius = 5
 
-					for idx, pt in enumerate(self.curve.line.points):
-						if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
-							self.pull_point = idx
-							print "Pulling point is number:", idx
-							self.mode = 'Mouse pulling'
+					if self.pull_mode == "Handle":
+						for idx, pt in enumerate(self.curve.line.pull_points):
+							if abs(pt[0]-mouse_pos[0]) < hitbox_radius and abs(pt[1]-mouse_pos[1]) < hitbox_radius:
+								self.pull_point = idx
+								print "Pulling point is number:", idx
+								self.mode = 'Mouse pulling'
+					elif self.pull_mode == "Curve":
+						for idx, pt in enumerate(self.curve.line.points):
+							if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
+								self.pull_point = idx
+								print "Pulling point is number:", idx
+								self.mode = 'Mouse pulling'
 				else:
 					self.mode = 'Mouse drawing'
 					self.running_points = []
@@ -77,7 +85,7 @@ class Controller(object):
 			if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
 				self.mode = None
 				if len(self.running_points)>15:
-					self.curve = Curve(self.running_points[::len(self.running_points)/15])  #[::len(self.running_points)/15]
+					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  #[::len(self.running_points)/15]
 				else:
 					print 'Not enough points registered'
 
@@ -97,7 +105,7 @@ class Controller(object):
 			if keys[pygame.K_SPACE] and not self.last_space:
 				self.mode = None
 				if len(self.running_points)>15:
-					self.curve = Curve(self.running_points[::len(self.running_points)/15])  #[::len(self.running_points)/15]
+					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  #[::len(self.running_points)/15]
 				else:
 					print 'Not enough points registered'
 
@@ -145,7 +153,6 @@ class Controller(object):
 		if mouse_pos != self.running_points[-1] and self.running_points[-1][0] < mouse_pos[0]: # NOTE: This is where we check if the user goes backwards
 			self.running_points.append(mouse_pos)
 
-
 	def pull_with_mouse(self):
 		# Get new mouse positions
 		mouse_pos = pygame.mouse.get_pos()
@@ -158,9 +165,10 @@ class Open_cv_control(object):
 		self.running_points = []
 		self.camera = cv2.VideoCapture(0)
 		self.prev_avg_col = (0,0,0)
-		self.color = 'bright_pink'
+		self.color = 'bright_green'
 		self.draw_color_lower = colors[self.color][0]
 		self.draw_color_upper = colors[self.color][1]
+		self.display_window = True 
 		print 'Initiated open CV'
 
 	def draw_with_open_cv(self):
@@ -219,9 +227,14 @@ class Open_cv_control(object):
 				thickness = 2
 				cv2.line(hfframe, self.running_points[i - 1], self.running_points[i], (0, 0, 255), thickness)
 
+			# if self.display_window:
 			cv2.imshow("Mask", hfmask)
 			cv2.imshow("Horizontal flip", hfframe)
-			cv2.waitKey(1)
+			cv2.waitKey(1)  #waitKey displays the each image for 1 ms. and allow the loop to run. if itt's 0 the image will be displayed infinitely and no input will be accepted
+			# key = cv2.waitKey(1)
+			# if key == ord("q"):
+			# 	self.display_window = False
+
 	def calibrate_color(self):
 		(grabbed, frame) = self.camera.read()
 		if grabbed:
