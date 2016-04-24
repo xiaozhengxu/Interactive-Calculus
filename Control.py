@@ -3,12 +3,14 @@
 """
 import pygame
 import numpy as np
+
 try:
 	import argparse
 	import imutils
 	import cv2
 except:
 	print "Open CV libraries not loaded."
+
 
 from curve import *
 from Model import *
@@ -20,16 +22,19 @@ colors = {'bright_green':[(29, 6, 84),(64, 255, 255)],'bright_pink':[(145,6,84),
 class Controller(object): 
 	def __init__(self):
 		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating']
+
 		try:
 			self.open_cv_control = Open_cv_control()
 		except:
 			pass
+
 		self.running_points = []
 		self.running = True
 		self.curve = None
 		self.last_space = False
 		self.last_press = False
 		self.last_g = False
+		self.last_l = False
 		self.last_c = False
 		self.pull_point = None
 		self.mode = None
@@ -39,8 +44,8 @@ class Controller(object):
 
 
 	def handle_events(self):
-		print self.mode
-		# print self.running_points
+
+
 		for event in pygame.event.get():	
 			if event.type == pygame.QUIT:	# Handle window closing
 				try: 
@@ -131,13 +136,18 @@ class Controller(object):
 				print "OpenCV Not Loaded"
 			self.curve = None
 
+		""" Stuff to change grid, legend etc."""
 		if keys[pygame.K_g] and not self.last_g:
-			
 			self.model.grid_update()
+		if keys[pygame.K_l] and not self.last_l:
+			self.model.legend_update()
+			
+
 
 		self.last_space = keys[pygame.K_SPACE] # Keep track of the last Space 
 		self.last_press = pygame.mouse.get_pressed()[0]
 		self.last_g = keys[pygame.K_g]
+		self.last_l = keys[pygame.K_l]
 		self.last_c = keys[pygame.K_c]
 
 
