@@ -277,7 +277,7 @@ class Line(object):
 			integral.append(int_pt)
 			prev_pt = pt
 
-		integral = [(pt[0], 500+(pt[1]-C)/500) for pt in integral] # WEIRD SCALING 
+		integral = [(pt[0], 500+(pt[1]-C)/400) for pt in integral] # WEIRD SCALING 
 		return integral
 
 
