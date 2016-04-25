@@ -64,7 +64,11 @@ class View(object):
 			self.draw_legend()
 		self.draw_graph()
 
-
+		if self.controller.mode == 'Mouse drawing':
+			try:
+				pygame.draw.lines(self.screen, (255, 0, 0), False, self.controller.running_points, 2)
+			except ValueError:
+				pass
 
 		if self.controller.curve:
 			pygame.draw.lines(self.screen, (255, 0, 0), False, self.controller.curve.line.points, 2)
@@ -75,6 +79,13 @@ class View(object):
 				for pt in self.controller.curve.line.pull_points:
 					pt_int = (int(pt[0]), int(pt[1]))
 					pygame.draw.circle(self.screen, (0,0,0), pt_int, 3)
+
+		if self.controller.mode == 'Open CV drawing':
+			if self.controller.image != None:
+				image=pygame.surfarray.make_surface(self.controller.image)
+				image.set_alpha(150) #255 is fully opaque, 0 is fully transparent
+				self.screen.blit(image,(0, 0))
+
 		pygame.display.update()
 
 

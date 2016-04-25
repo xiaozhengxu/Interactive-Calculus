@@ -3,20 +3,27 @@
 """
 import pygame
 import numpy as np
-import argparse
-import imutils
-import cv2
+try:
+	import argparse
+	import imutils
+	import cv2
+except:
+	print "Open CV libraries not loaded."
 
 from curve import *
 from Model import *
 
 #define HSV color range of a tennis ball: open cv has range: H: 0-180, S: 0 -255, V: 0-255
-colors = {'bright_green':[(29, 84, 6),(64, 255, 255)],'bright_pink':[(145,84,6),(175,255,255)]}
+colors = {'bright_green':[(29, 84, 6),(64, 255, 255)],'bright_pink':[(145,84,120),(175,255,255)]}
+color='bright_pink'
 
 class Controller(object): 
 	def __init__(self):
 		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating']
-		self.open_cv_control = Open_cv_control()
+		try:
+			self.open_cv_control = Open_cv_control()
+		except:
+			pass
 		self.running_points = []
 		self.running = True
 		self.curve = None
@@ -29,7 +36,7 @@ class Controller(object):
 		self.model = Model()
 
 		self.pull_mode = "Handle"
-
+		self.image = None
 
 	def handle_events(self):
 		print self.mode
@@ -95,10 +102,11 @@ class Controller(object):
 				self.mode = None
 
 		elif self.mode == 'Open CV drawing':
-			try:
-				self.open_cv_control.draw_with_open_cv()
-			except:	
-				open_cv_control.close_camera()
+			# try:
+			self.open_cv_control.draw_with_open_cv()
+			self.image = self.open_cv_control.image
+			# except:	
+			# 	self.open_cv_control.close_camera()
 
 			self.running_points = self.open_cv_control.running_points
 
@@ -106,6 +114,7 @@ class Controller(object):
 				self.mode = None
 				if len(self.running_points)>15:
 					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  #[::len(self.running_points)/15]
+					print self.running_points
 				else:
 					print 'Not enough points registered'
 
@@ -164,11 +173,14 @@ class Open_cv_control(object):
 	def __init__(self):
 		self.running_points = []
 		self.camera = cv2.VideoCapture(0)
+		self.camera.set(3,640) #setting camera size
+		self.camera.set(4,480) #setting camera size
 		self.prev_avg_col = (0,0,0)
-		self.color = 'bright_green'
+		self.color = color
 		self.draw_color_lower = colors[self.color][0]
 		self.draw_color_upper = colors[self.color][1]
-		self.display_window = True 
+		self.image = None
+		# self.display_window = True 
 		print 'Initiated open CV'
 
 	def draw_with_open_cv(self):
@@ -185,12 +197,12 @@ class Open_cv_control(object):
 			mask = cv2.erode(mask, None, iterations=2)
 			mask = cv2.dilate(mask, None, iterations=2)
 
-			# Flip the mask and frame horizontally
+			# Flip the mask and frame horizontally so it's the direction of draw
 			hfmask = cv2.flip(mask,1)
-			hfframe = cv2.flip(frame,1)
+			hfframe = cv2.flip(frame,1) #flip if use open cv to display image
 
 			# Find contours in the mask and initialize the current
-			# (x, y) center of the ball
+			# (x, y) center of the balls
 			cnts = cv2.findContours(hfmask.copy(), cv2.RETR_CCOMP,
 				cv2.CHAIN_APPROX_SIMPLE)[-2]
 			center = None
@@ -204,7 +216,7 @@ class Open_cv_control(object):
 
 				# Only proceed if the radius meets a minimum size
 				print radius
-				if radius > 40:
+				if radius > 30:
 					pts=(int(x),int(y))
 
 					cv2.circle(hfframe, pts, int(radius),(0, 255, 255), 2)
@@ -226,11 +238,15 @@ class Open_cv_control(object):
 				# draw the connecting lines
 				thickness = 2
 				cv2.line(hfframe, self.running_points[i - 1], self.running_points[i], (0, 0, 255), thickness)
+			
+			self.image = cv2.cvtColor(hfframe,cv2.COLOR_BGR2RGB)
+			self.image = cv2.flip(self.image,1) #flip the image back for pygame display and rotate the image 
+			self.image = np.rot90(self.image) 
 
 			# if self.display_window:
 			cv2.imshow("Mask", hfmask)
 			cv2.imshow("Horizontal flip", hfframe)
-			cv2.waitKey(1)  #waitKey displays the each image for 1 ms. and allow the loop to run. if itt's 0 the image will be displayed infinitely and no input will be accepted
+			cv2.waitKey(1)  #waitKey displays each image for 1 ms. and allow the loop to run. if itt's 0 the image will be displayed infinitely and no input will be accepted
 			# key = cv2.waitKey(1)
 			# if key == ord("q"):
 			# 	self.display_window = False
