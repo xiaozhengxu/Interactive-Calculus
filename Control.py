@@ -40,7 +40,7 @@ class Controller(object):
 		self.mode = None
 		self.model = Model()
 
-		self.pull_mode = "Handle"
+		self.pull_mode = "Handle"		# "Handle" or "Curve"
 
 
 	def handle_events(self):
@@ -97,7 +97,7 @@ class Controller(object):
 			if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
 				self.mode = None
 				if len(self.running_points)>15:
-					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  #[::len(self.running_points)/15]
+					self.curve = Curve(self.running_points[::len(self.running_points)/7], self.pull_mode)  #[::len(self.running_points)/15]
 				else:
 					print 'Not enough points registered'
 
