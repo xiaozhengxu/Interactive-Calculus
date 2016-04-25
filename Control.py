@@ -3,12 +3,14 @@
 """
 import pygame
 import numpy as np
+
 try:
 	import argparse
 	import imutils
 	import cv2
 except:
 	print "Open CV libraries not loaded."
+
 
 from curve import *
 from Model import *
@@ -20,27 +22,35 @@ color='bright_pink'
 class Controller(object): 
 	def __init__(self):
 		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating']
+
 		try:
 			self.open_cv_control = Open_cv_control()
 		except:
 			pass
+
 		self.running_points = []
 		self.running = True
 		self.curve = None
 		self.last_space = False
 		self.last_press = False
 		self.last_g = False
+		self.last_l = False
 		self.last_c = False
 		self.pull_point = None
 		self.mode = None
 		self.model = Model()
 
+<<<<<<< HEAD
 		self.pull_mode = "Handle"
 		self.image = None
+=======
+		self.pull_mode = "Handle"		# "Handle" or "Curve"
+
+>>>>>>> 2dfbb16261b7afd0f23d8e5e1b017527e4825659
 
 	def handle_events(self):
-		print self.mode
-		# print self.running_points
+
+
 		for event in pygame.event.get():	
 			if event.type == pygame.QUIT:	# Handle window closing
 				try: 
@@ -92,7 +102,7 @@ class Controller(object):
 			if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
 				self.mode = None
 				if len(self.running_points)>15:
-					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  #[::len(self.running_points)/15]
+					self.curve = Curve(self.running_points[::len(self.running_points)/7], self.pull_mode)  #[::len(self.running_points)/15]
 				else:
 					print 'Not enough points registered'
 
@@ -133,13 +143,18 @@ class Controller(object):
 				print "OpenCV Not Loaded"
 			self.curve = None
 
+		""" Stuff to change grid, legend etc."""
 		if keys[pygame.K_g] and not self.last_g:
-			
 			self.model.grid_update()
+		if keys[pygame.K_l] and not self.last_l:
+			self.model.legend_update()
+			
+
 
 		self.last_space = keys[pygame.K_SPACE] # Keep track of the last Space 
 		self.last_press = pygame.mouse.get_pressed()[0]
 		self.last_g = keys[pygame.K_g]
+		self.last_l = keys[pygame.K_l]
 		self.last_c = keys[pygame.K_c]
 
 

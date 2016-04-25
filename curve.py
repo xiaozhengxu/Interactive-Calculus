@@ -193,9 +193,8 @@ class Line(object):
 				# print 'moved', 1 + rel_d / (i+1)
 		elif kind == None:
 			# Only move the selected point (used when moving handles)
-			distance_x = float(new_pos[0] - pts[index][0])
-
-			pts[index] = (pts[index][0] + distance_x, pts[index][1] + distance_y) # TODO: Keep points in order
+			
+			pts[index] = (new_pos[0], new_pos[1]) # TODO: Keep points in order
 			
 
 		else:
@@ -277,7 +276,7 @@ class Line(object):
 			integral.append(int_pt)
 			prev_pt = pt
 
-		integral = [(pt[0], 500+(pt[1]-C)/500) for pt in integral] # WEIRD SCALING 
+		integral = [(pt[0], 500+(pt[1]-C)/400) for pt in integral] # WEIRD SCALING 
 		return integral
 
 
