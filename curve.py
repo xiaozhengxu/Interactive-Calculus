@@ -32,6 +32,7 @@ class Curve(object):
 		This method adjusts the three related lines as the user clicks and drags points on one of them. If the input line is changed, the derivative and integral
 		are changed. If the derivative is changed, the line and integral are changed. In this case the new line is found through integrating the changed derivative.
 		A similar process happens if the integral is changed.
+		This function is called by pull_with_mouse() in Control.py: self.curve.move_point(self.pull_point, mouse_pos, line="line")
 		"""
 		if line == 'line':
 			self.line.move_point(handle, new_pos, kind="sigmoid")
@@ -54,7 +55,6 @@ class Curve(object):
 
 			self.line = Line(self.integral.derive(), smooth_bool=True, pull_mode=self.pull_mode) # The new line will be the derivative of the changed integral
 			self.derivative = Line(self.line.derive(), smooth_bool=True, pull_mode=self.pull_mode)    # Back to normal
-
 
 	def draw_to_plot(self, variables=['line', 'derivative', 'integral']):
 		"""
@@ -106,12 +106,28 @@ class Line(object):
 				self.pull_points = points
 			else:
 				self.points, self.pull_points = self.smoothen(points, pull_pts_num=pull_pts_num)
-
+		self.tangent = None
+	
 	def __index__(self, idx):
 		"""
 		Method that allows index of Line to be called. Ex: Line[index] will work as if Line was a list. 
 		"""
 		return self.points[idx]
+
+	def make_tangent(self,idx,tangent_length):
+		'''This function gets the derivative at a point and returns a tangent array containing two points to be plotted'''
+		x = self.points[idx][0]
+		y = self.points[idx][1]
+		x_prev = self.points[idx-1][0]
+		y_prev = self.points[idx-1][1]
+		start_x = x-tangent_length
+		end_x = x+tangent_length
+		dx = x-x_prev 
+		dy = y-y_prev 
+		start_y = y - tangent_length*dy/dx
+		end_y = y +tangent_length*dy/dx
+
+		self.tangent = [(start_x,start_y),(end_x,end_y)]
 
 	def deep_copy(self):
 		"""
@@ -142,16 +158,17 @@ class Line(object):
 
 	def move_point(self, index, new_pos, kind='relative'): # currently doesn't change the local Line
 		"""
-		Method to adjust the points of a line as it is adjusted/dragged through user input. A line is adjusted when the user pulls its "pulling points". 
+		Method to adjust the points of a line as it is adjusted/dragged through user input. 
+		A line is adjusted when the user pulls its "pulling points". 
+		called by move_point in curve: self.line.move_point(handle, new_pos, kind="sigmoid")
 		"""
-		if self.pull_mode == "Curve":
-			pts = self.points
+		if self.pull_mode == "Curve":    
+			pts = self.points   #Because self.points is a list, modifying pts changes the original self.points 
 		elif self.pull_mode == "Handle":
 			pts = self.pull_points
 			kind = None
 
 		distance_y = float(new_pos[1] - pts[index][1])    # Distance pulling point moved
-
 
 		if index >= len(pts):
 			print 'Index out of Range'
@@ -168,7 +185,7 @@ class Line(object):
 				pts[i+index] = (pts[i+index][0], pts[i+index][1] + distance_y / (i+1)**0.7)
 				print 'moved', distance_y / (i+1)
 
-		elif kind == 'sigmoid':
+		elif kind == 'sigmoid':  #This is the one we're using right now. 
 			sigmoid_size = 1/3
 			S = lambda d: 1/(1+math.exp(d/2.0-4)) # Sigmoid function
 
@@ -195,12 +212,10 @@ class Line(object):
 			# Only move the selected point (used when moving handles)
 			
 			pts[index] = (new_pos[0], new_pos[1]) # TODO: Keep points in order
-			
 
 		else:
 			print 'Invalid Version'
 			return None
-
 
 	def move_point_old(self, index, distance, kind='relative'): # currently doesn't change the local Line
 		"""
@@ -246,7 +261,6 @@ class Line(object):
 		"""
 		Method that creates a list of tuples which is the derivative of the current Line object.
 		"""
-
 		deriv = []
 		prev_pt = self.points[0]
 

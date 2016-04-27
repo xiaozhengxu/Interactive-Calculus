@@ -15,6 +15,14 @@ from curve import *
 from Model import *
 from Control import *
 
+
+pygame.font.init()
+fontsmall = pygame.font.SysFont('UbuntuMono',20)
+fontlarge = pygame.font.SysFont('UbuntuMono',100)
+fontmedium = pygame.font.SysFont('UbuntuMono',40)
+fonttiny = pygame.font.SysFont('UbuntuMono', 15)
+
+
 class View(object):
 	"""
 	Class for displaying curves.
@@ -39,7 +47,6 @@ class View(object):
 		for j in range(0, self.screen_size[1], 20):
 			pygame.draw.line(self.screen, (128,128,128), (0, j), (self.screen_size[0], j), 1)
 
-	
 
 	def draw_graph(self):
 		"""
@@ -86,17 +93,20 @@ class View(object):
   		#self.screen.blit(text, (self.screen_size[0], 40))
 
 
+	def display_text(self, msg, font, color, x, y):
+		"""Writes text on screen"""
+		text = font.render(msg, True, color)
+		self.screen.blit(text, [x, y])
+	        
 	def draw(self):
 		"""
 		Displays the user's drawing input on the screen
 		"""
-		
 		self.controller.handle_events()
 
 		#NOTE: Redrawn every time to handle curve movement
 		self.screen.fill(pygame.Color('white'))
 
-		
 		if self.controller.model.grid_status:	# True, False, 
 			self.draw_grid()
 		if self.controller.model.legend_status:	# True, False, 
@@ -107,28 +117,48 @@ class View(object):
 
 		if self.controller.mode == 'Mouse drawing':
 			try:
-				pygame.draw.lines(self.screen, (255, 0, 0), False, self.controller.running_points, 2)
-			except ValueError:
+				pygame.draw.lines(self.screen, (0, 0, 255), False, self.controller.running_points, 2)
+			except ValueError: #If there are not enough points in lines (in the beginning of drawing)
 				pass
 
+		#Draw the curves
 		if self.controller.curve:
 			pygame.draw.lines(self.screen, (0, 0, 255), False, self.controller.curve.line.points, 3)
 			pygame.draw.lines(self.screen, (160, 32, 240), False, self.controller.curve.derivative.points, 3)
 			pygame.draw.lines(self.screen, (0 ,120, 0), False, self.controller.curve.integral.points, 3)
 
+			# Displaying the pull points:
 			if self.controller.pull_mode == "Handle":
 				for pt in self.controller.curve.line.pull_points:
 					pt_int = (int(pt[0]), int(pt[1]))
 					pygame.draw.circle(self.screen, (0,0,0), pt_int, 3)
+		#Draw the tangent lines
+		if self.controller.mode == 'Show tangent':
+			try:
+				pygame.draw.lines(self.screen, (0, 200, 255), False, self.controller.curve.line.tangent, 3)
+			except TypeError:
+				print type(self.controller.curve.line.tangent)
 
+		#Display the open cv image on screen
 		if self.controller.mode == 'Open CV drawing':
 			if self.controller.image != None:
 				image=pygame.surfarray.make_surface(self.controller.image)
 				image.set_alpha(150) #255 is fully opaque, 0 is fully transparent
 				self.screen.blit(image,(0, 0))
 
+		#display the current mode 
+		self.display_text('Current mode: {}'.format(self.controller.mode),fontsmall, (186,85,211), 0,0) #purple color
+		#display the instructions for the mode underneath the mode name
+		instructions = self.get_instructions_for_mode(self.controller.mode)
+		self.display_text(instructions,fontsmall,(186,85,211), 0, 30)
+
 		pygame.display.update()
 
+	def get_instructions_for_mode(self, mode):
+		if mode == 'Show tangent':
+			return 'click on a point to show tangent.'
+		if mode == 'Open CV drawing':
+			return 'Open CV drawing color: {}'.format(color)
 
 
 		

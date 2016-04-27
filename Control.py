@@ -21,7 +21,7 @@ color='bright_pink'
 
 class Controller(object): 
 	def __init__(self):
-		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating']
+		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating','Show tangent']
 
 		try:
 			self.open_cv_control = Open_cv_control()
@@ -37,20 +37,15 @@ class Controller(object):
 		self.last_l = False
 		self.last_c = False
 		self.pull_point = None
+		self.tangent_point = None
 		self.mode = None
 		self.model = Model()
 
-<<<<<<< HEAD
-		self.pull_mode = "Handle"
+		self.pull_mode = "Curve"
 		self.image = None
-=======
-		self.pull_mode = "Handle"		# "Handle" or "Curve"
 
->>>>>>> 2dfbb16261b7afd0f23d8e5e1b017527e4825659
 
 	def handle_events(self):
-
-
 		for event in pygame.event.get():	
 			if event.type == pygame.QUIT:	# Handle window closing
 				try: 
@@ -60,6 +55,8 @@ class Controller(object):
 				self.running = False
 
 		keys = pygame.key.get_pressed() # Returns a tuple of 1s and 0s corresponding to the the pressed keys
+		
+		hitbox_radius = 5 #for clicking on curves
 
 		if self.mode == None:
 			if keys[pygame.K_SPACE] and not self.last_space: 
@@ -77,8 +74,6 @@ class Controller(object):
 
 					mouse_pos = pygame.mouse.get_pos()
 
-					hitbox_radius = 5
-
 					if self.pull_mode == "Handle":
 						for idx, pt in enumerate(self.curve.line.pull_points):
 							if abs(pt[0]-mouse_pos[0]) < hitbox_radius and abs(pt[1]-mouse_pos[1]) < hitbox_radius:
@@ -94,6 +89,9 @@ class Controller(object):
 				else:
 					self.mode = 'Mouse drawing'
 					self.running_points = []
+
+			if keys[pygame.K_t] and not self.last_t:
+				self.mode = 'Show tangent'
 
 		elif self.mode == 'Mouse drawing':
 
@@ -133,7 +131,20 @@ class Controller(object):
 
 			if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
 				self.mode = None
+		
+		elif self.mode == 'Show tangent':
+			if pygame.mouse.get_pressed()[0] and not self.last_press:
+				mouse_pos = pygame.mouse.get_pos()
 
+				for idx, pt in enumerate(self.curve.line.points):
+					if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
+						self.tangent_point = idx
+						self.curve.line.make_tangent(idx,100)
+
+			if keys[pygame.K_t] and not self.last_t:
+				self.mode = None
+
+		'''Clearing the screen'''
 		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
 			self.mode = None
 			self.running_points = []
@@ -148,7 +159,6 @@ class Controller(object):
 			self.model.grid_update()
 		if keys[pygame.K_l] and not self.last_l:
 			self.model.legend_update()
-			
 
 
 		self.last_space = keys[pygame.K_SPACE] # Keep track of the last Space 
@@ -156,7 +166,7 @@ class Controller(object):
 		self.last_g = keys[pygame.K_g]
 		self.last_l = keys[pygame.K_l]
 		self.last_c = keys[pygame.K_c]
-
+		self.last_t = keys[pygame.K_t]
 
 	def draw_with_mouse(self):
 		'''This method is currently called by view.draw_input()
@@ -230,7 +240,7 @@ class Open_cv_control(object):
 				((x, y), radius) = cv2.minEnclosingCircle(c)
 
 				# Only proceed if the radius meets a minimum size
-				print radius
+				# print radius
 				if radius > 30:
 					pts=(int(x),int(y))
 
@@ -252,7 +262,7 @@ class Open_cv_control(object):
 				# otherwise, compute the thickness of the line and
 				# draw the connecting lines
 				thickness = 2
-				cv2.line(hfframe, self.running_points[i - 1], self.running_points[i], (0, 0, 255), thickness)
+				cv2.line(hfframe, self.running_points[i - 1], self.running_points[i], (255, 0, 0), thickness)
 			
 			self.image = cv2.cvtColor(hfframe,cv2.COLOR_BGR2RGB)
 			self.image = cv2.flip(self.image,1) #flip the image back for pygame display and rotate the image 

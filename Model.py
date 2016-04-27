@@ -31,9 +31,6 @@ class Model(object):
 		# self.legend_redraw = True
 
 
-
-
-
 	def update(self):
 		"""
 		To update the model accoring to user input
