@@ -11,8 +11,7 @@ if __name__ == "__main__":
 
 	view = View()
 
+	while view.controller.running:
 
-while view.controller.running:
-
-	view.draw()
+		view.draw()
 

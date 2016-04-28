@@ -93,11 +93,11 @@ class Line(object):
 		"""
 		Initializes a line class. If the line is not considered smooth, the smoothen() method is called.
 		""" 
-		print "Making Line"
+		# print "Making Line"
 		self.pull_mode = pull_mode
 		if smooth_bool:     # If the points are smooth, don't bother smoothening the curve
 			self.points = points
-			print len(points)
+			# print len(points)
 			self.pull_points = (0,0)  
 			#points[::len(points)/pull_pts_num]
 		else:
@@ -174,6 +174,7 @@ class Line(object):
 			pts = self.pull_points
 			kind = None
 
+		distance_x = float(new_pos[0] - pts[index][0])    # Distance pulling point moved
 		distance_y = float(new_pos[1] - pts[index][1])    # Distance pulling point moved
 
 		if index >= len(pts):
@@ -215,53 +216,25 @@ class Line(object):
 				pts[i+index] = (pts[i+index][0], pts[i+index][1] * (1 + (rel_d / (i+1))))   # Similar to above
 				# print 'moved', 1 + rel_d / (i+1)
 		elif kind == None:
-			# Only move the selected point (used when moving handles)
-			
-			pts[index] = (new_pos[0], new_pos[1]) # TODO: Keep points in order
+			# # Only move the selected point (used when moving handles)
+			# pts[index] = (new_pos[0], new_pos[1]) # TODO: Keep points in order
+			space = 3
+
+			first_point = index == 0 and (new_pos[0] < pts[index+1][0]-space)
+			last_point = pts[index] == pts[-1] and (pts[index-1][0]+space < new_pos[0])
+			other_point = False
+			if not first_point and not last_point:
+				other_point = pts[index-1][0]+space < new_pos[0] and new_pos[0] < pts[index+1][0]-space
+
+			if first_point or last_point or other_point:
+				pts[index] = (new_pos[0], new_pos[1])
+			else:
+				pts[index] = (pts[index][0], new_pos[1])
+
 
 		else:
 			print 'Invalid Version'
 			return None
-
-	def move_point_old(self, index, distance, kind='relative'): # currently doesn't change the local Line
-		"""
-		Method to adjust the points of a line as it is adjusted/dragged through user input. A line is adjusted when the user pulls its "pulling points". 
-		"""
-		pts = self.points
-		distance = float(distance)  # Distance pulling point moved
-
-		if index >= len(pts):
-			print 'Index out of Range'
-			return None
-				
-		if kind == 'absolute':
-			factor = 1.5
-			# Absolute change in distance
-			for i, pt in enumerate(pts[:index]):
-				pts[i] = (pts[i][0], pts[i][1] + distance / (index-i+1)**2)
-				print 'moved', distance / (index-i+1)
-
-			for i, pt, in enumerate(pts[index:]):
-				pts[i+index] = (pts[i+index][0], pts[i+index][1] + distance / (i+1)**2)
-				print 'moved', distance / (i+1)
-
-		elif kind == 'relative':
-			rel_d = distance / pts[index][1] 
-			for i, pt in enumerate(pts[:index]):
-				pts[i] = (pts[i][0], pts[i][1] * (1 + (rel_d / (index-i+1))))   # For the line to the left of the adjusted point, shift each value accordintly. The adjustment becomes larger, closer to the point that was adjusted.
-				print 'moved', 1 + rel_d / (index-i+1)
-
-			for i, pt, in enumerate(pts[index:]):
-				pts[i+index] = (pts[i+index][0], pts[i+index][1] * (1 + (rel_d / (i+1))))   # Similar to above
-				print 'moved', 1 + rel_d / (i+1)
-		else:
-			print 'Invalid Version'
-			return None
-
-
-		self.update()
-		return pts
-
 	
 	def derive(self):
 		"""

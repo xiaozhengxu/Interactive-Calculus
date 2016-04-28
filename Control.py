@@ -41,7 +41,7 @@ class Controller(object):
 		self.mode = None
 		self.model = Model()
 
-		self.pull_mode = "Curve"
+		self.pull_mode = "Handle"
 		self.image = None
 
 
