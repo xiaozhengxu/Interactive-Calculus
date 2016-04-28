@@ -133,13 +133,12 @@ class Controller(object):
 				self.mode = None
 		
 		elif self.mode == 'Show tangent':
-			if pygame.mouse.get_pressed()[0] and not self.last_press:
-				mouse_pos = pygame.mouse.get_pos()
+			mouse_pos = pygame.mouse.get_pos()
 
-				for idx, pt in enumerate(self.curve.line.points):
-					if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
-						self.tangent_point = idx
-						self.curve.line.make_tangent(idx,100)
+			for idx, pt in enumerate(self.curve.line.points):
+				if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
+					self.tangent_point = idx
+					self.curve.line.make_tangent(idx,100)
 
 			if keys[pygame.K_t] and not self.last_t:
 				self.mode = None
