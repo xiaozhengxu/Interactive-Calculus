@@ -15,7 +15,7 @@ After you are down drawing, a graph shows up with your input curve, it's derivat
 #### Contributors
 Matthew Beaudouin-Lafon, March Saper, Xiaozheng Xu
 
-Attribution to http://www.pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/ for Open CV contours.
+Attribution to http://www.pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/ for Open CV object tracking.
 
 #### License
 Refer to  GNU GENERAL PUBLIC LICENSE
