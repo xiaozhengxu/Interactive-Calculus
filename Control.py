@@ -138,6 +138,7 @@ class Controller(object):
 
 				for idx, pt in enumerate(self.curve.line.points):
 					if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
+						self.tangent_point = idx
 						self.curve.line.make_tangent(idx,100)
 
 			if keys[pygame.K_t] and not self.last_t:
