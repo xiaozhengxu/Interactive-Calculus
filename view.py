@@ -34,25 +34,19 @@ class View(object):
 		self.screen = pygame.display.set_mode(self.screen_size)
 		self.controller = Controller()
 
-		
-
 	def draw_grid(self):
 		"""
 		Method to draw grid if user wants
 		"""
-		
-		
 		for i in range(0, self.screen_size[0], 20):
 			pygame.draw.line(self.screen, (128,128,128), (i, 0), (i, self.screen_size[1]), 1)
 		for j in range(0, self.screen_size[1], 20):
 			pygame.draw.line(self.screen, (128,128,128), (0, j), (self.screen_size[0], j), 1)
 
-
 	def draw_graph(self):
 		"""
 		Draws the axes 
 		"""
-		
 		#draw the x and y axes
 		pygame.draw.line(self.screen, (0, 0, 0), (self.screen_size[0]/2, 0), (self.screen_size[0]/2, self.screen_size[1]), 3)
 		pygame.draw.line(self.screen, (0, 0, 0), (0, self.screen_size[1]/2), (self.screen_size[0], self.screen_size[1]/2), 3)
@@ -132,12 +126,16 @@ class View(object):
 				for pt in self.controller.curve.line.pull_points:
 					pt_int = (int(pt[0]), int(pt[1]))
 					pygame.draw.circle(self.screen, (0,0,0), pt_int, 3)
+
 		#Draw the tangent lines
 		if self.controller.mode == 'Show tangent':
 			try:
 				pygame.draw.lines(self.screen, (0, 200, 255), False, self.controller.curve.line.tangent, 3)
 			except TypeError:
 				print type(self.controller.curve.line.tangent)
+
+		if self.controller.mode == 'Show area':
+			pygame.draw.polygon(self.screen,(0, 200, 255),self.controller.curve.line.area,0)
 
 		#Display the open cv image on screen
 		if self.controller.mode == 'Open CV drawing':

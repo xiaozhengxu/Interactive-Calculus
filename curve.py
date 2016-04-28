@@ -22,7 +22,6 @@ class Curve(object):
 		The derivative and integral of a smooth line will be smooth without smoothening.
 		"""
 		self.pull_mode = pull_mode
-
 		self.line = Line(points, pull_mode=self.pull_mode)
 		self.derivative = Line(self.line.derive(), smooth_bool=True, pull_mode=self.pull_mode)
 		self.integral = Line(self.line.integrate(), smooth_bool=True, pull_mode=self.pull_mode)
@@ -125,9 +124,24 @@ class Line(object):
 		dx = x-x_prev 
 		dy = y-y_prev 
 		start_y = y - tangent_length*dy/dx
-		end_y = y +tangent_length*dy/dx
-
+		end_y = y + tangent_length*dy/dx
 		self.tangent = [(start_x,start_y),(end_x,end_y)]
+
+	def make_area(self,idx):
+		'''This function gets a user input point and creates a list of polygon to be plotted by view'''
+		self.points
+		polygon = [[]]
+		prev_pt = self.points[0]
+		polygon_num = 0
+		for i,pt in enumerate(self.points[:idx]):
+			if pt[1]*prev_pt[1]>0:
+				polygon[polygon_num].append(pt)
+
+			elif pt[1]*prev_pt[1]<0:
+				polygon.append([])
+				polygon_num+=1
+
+		return polygon
 
 	def deep_copy(self):
 		"""

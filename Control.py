@@ -37,7 +37,6 @@ class Controller(object):
 		self.last_l = False
 		self.last_c = False
 		self.pull_point = None
-		self.tangent_point = None
 		self.mode = None
 		self.model = Model()
 
@@ -80,6 +79,7 @@ class Controller(object):
 								self.pull_point = idx
 								print "Pulling point is number:", idx
 								self.mode = 'Mouse pulling'
+
 					elif self.pull_mode == "Curve":
 						for idx, pt in enumerate(self.curve.line.points):
 							if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
@@ -133,16 +133,24 @@ class Controller(object):
 				self.mode = None
 		
 		elif self.mode == 'Show tangent':
-			if pygame.mouse.get_pressed()[0] and not self.last_press:
+			if pygame.mouse.get_pressed()[0]:
 				mouse_pos = pygame.mouse.get_pos()
 
 				for idx, pt in enumerate(self.curve.line.points):
 					if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
-						self.tangent_point = idx
 						self.curve.line.make_tangent(idx,100)
 
 			if keys[pygame.K_t] and not self.last_t:
 				self.mode = None
+
+		elif self.mode == 'Show area':
+			if pygame.mouse.get_pressed()[0]:
+				mouse_pos = pygame.mouse.get_pos()
+
+				for idx, pt in enumerate(self.curve.line.points):
+					if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
+						self.curve.line.draw_area(idx) 
+
 
 		'''Clearing the screen'''
 		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
