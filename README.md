@@ -6,18 +6,29 @@ The main idea of our project is to create a interactive math app that helps indi
 #### Getting started
 This module requires the installation of scipy, numpy, OpenCV, and pygame. 
 To install these in a linux system:
-
 $ sudo apt-get install python-pygame
 $ sudo apt-get install python-opencv
+$ sudo apt-get install python-numpy python-scipy python-matplotlib ipython ipython-notebook python-pandas python-sympy python-nose
+
+To install these in a windows system:
+pygame:
+http://www.pygame.org/download.shtml
+opencv-python:
+http://docs.opencv.org/3.1.0/d5/de5/tutorial_py_setup_in_windows.html#gsc.tab=0
+scipy and numpy:
+http://www.numpy.org/
 
 #### Usage
 To use the program, run main.py.
+Input:
 Draw with you mouse by clicking and moving it across the screen. 
 Draw with open cv by pressing space, moving a tennis ball in your hand, and pressing space again when you are done. 
-After you are down drawing, a graph shows up with your input curve, it's derivative and integral. 
+Features:
+Move curves by clicking and dragging the curve. See derivatives and integrals change along it.
+Press 't' to show tangents 
 
 #### Authors
-Matthew Beaudouin-Lafon, March Saper, Xiaozheng Xu
+Matthew Beaudouin-Lafon, March Saper, Xiaozheng Xu 
 
 Attribution to http://www.pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/ for Open CV object tracking.
 
