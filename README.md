@@ -1,7 +1,7 @@
 ### Visual Calculus
 
 #### Description
-This project aims to help individuals understand the Fundamental Theorem of Calculus. It allows users to interact with the Fundamental Theorem of Calculus in a purely visual and geometric way, eliminating equations and building a geometrically intuitive understanding of the theorem. 
+This project aims to help individuals understand and interact with the Fundamental Theorem of Calculus in a purely visual and geometric way. We hope to help learners build an intuition for the relationships among a line and its corresponding derivative and integral. This is done through an interactive window where users draw an input curve. The curve's integral and derivative are displayed and users may adjust these lines and observe how they change in relation to one another. Users may also view corresponding tangent lines and areas to connect the functionss of derivatives and integrals to their properties as lines.
 
 #### Getting started
 This module requires scipy, numpy, OpenCV, and pygame. 
