@@ -7,9 +7,11 @@ The main idea of our project is to create a interactive math app that helps indi
 This module requires the installation of scipy, numpy, OpenCV, and pygame. 
 
 To install these in a linux system:
-  $ sudo apt-get install python-pygame
-  $ sudo apt-get install python-opencv
-  $ sudo apt-get install python-numpy python-scipy
+  `$ sudo apt-get install python-pygame`
+  
+ ` $ sudo apt-get install python-opencv`
+  
+ ` $ sudo apt-get install python-numpy python-scipy`
 
 To install these in a windows system:
 
