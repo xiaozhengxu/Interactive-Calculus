@@ -1,19 +1,16 @@
-### Interactive Calculus
+### Visual Calculus
 
 #### Description
-The main idea of our project is to create a interactive math app that helps individuals understand calculus. The purpose of this project is to allow the user to interact with the Fundamental Theorem of Calculus in a purely visual and geometric way, eliminating equations and allowing the user to build a geometrically intuitive understanding of the theorem. 
+This project aims to help individuals understand the Fundamental Theorem of Calculus. It allows users to interact with the Fundamental Theorem of Calculus in a purely visual and geometric way, eliminating equations and building a geometrically intuitive understanding of the theorem. 
 
 #### Getting started
-This module requires the installation of scipy, numpy, OpenCV, and pygame. 
+This module requires scipy, numpy, OpenCV, and pygame. 
 
-To install these in a linux system:
-  `$ sudo apt-get install python-pygame`
-  
- ` $ sudo apt-get install python-opencv`
-  
- ` $ sudo apt-get install python-numpy python-scipy`
+To install these in a linux system use:
 
-To install these in a windows system:
+ ` $ sudo apt-get install python-numpy python-scipy python-opencv python-pygame`
+
+To install these on other operating systems visit:
 
 pygame:
 http://www.pygame.org/download.shtml
@@ -33,7 +30,6 @@ Draw with open cv by pressing space, moving a tennis ball in your hand, and pres
 
 Features:
 Click and dragging the curves to see how the derivative and integral change.
-
 Press 't' to see tangent lines.
 
 #### Authors
