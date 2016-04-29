@@ -8,9 +8,7 @@ This module requires the installation of scipy, numpy, OpenCV, and pygame.
 
 To install these in a linux system:
   $ sudo apt-get install python-pygame
-  
   $ sudo apt-get install python-opencv
-  
   $ sudo apt-get install python-numpy python-scipy
 
 To install these in a windows system:
@@ -37,7 +35,7 @@ Click and dragging the curves to see how the derivative and integral change.
 Press 't' to see tangent lines.
 
 #### Authors
-(https://github.com/MatthewBeaudouinLafon "Matthew Beaudouin-Lafon"), (https://github.com/mesrumpled "March Saper"), (https://github.com/xiaozhengxu "Xiaozheng Xu") 
+[Matthew Beaudouin-Lafon](https://github.com/MatthewBeaudouinLafon), [March Saper](https://github.com/mesrumpled), [Xiaoxheng Xu](https://github.com/xiaozhengxu) 
 
 Attribution to http://www.pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/ for Open CV object tracking.
 
