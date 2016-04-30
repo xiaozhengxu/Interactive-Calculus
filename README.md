@@ -12,13 +12,13 @@ To install these in a linux system use:
 
 To install these in other operating systems visit:
 
-pygame:
+Pygame:
 http://www.pygame.org/download.shtml
 
-opencv-python:
+OpenCV:
 http://docs.opencv.org/3.1.0/d5/de5/tutorial_py_setup_in_windows.html#gsc.tab=0
 
-scipy and numpy:
+Scipy and numpy:
 http://www.numpy.org/
 
 #### Usage
