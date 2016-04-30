@@ -10,7 +10,7 @@ To install these in a linux system use:
 
  ` $ sudo apt-get install python-numpy python-scipy python-opencv python-pygame`
 
-To install these on other operating systems visit:
+To install these in other operating systems visit:
 
 pygame:
 http://www.pygame.org/download.shtml
