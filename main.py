@@ -1,5 +1,5 @@
 import pygame
-import matplotlib
+
 
 #from Control import Controller
 from view import View

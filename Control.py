@@ -200,7 +200,7 @@ class Controller(object):
 		# Get new mouse positions
 		mouse_pos = pygame.mouse.get_pos()
 		# Move point there
-		# self.curve.line.move_point(self.pull_point, mouse_pos, kind='sigmoid')
+		#self.curve.line.move_point(self.pull_point, mouse_pos, kind='sigmoid')
 		self.curve.move_point(self.pull_point, mouse_pos, line="line")
 
 class Open_cv_control(object):

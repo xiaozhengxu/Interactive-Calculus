@@ -124,12 +124,6 @@ class Line(object):
 		dy = y-y_prev 
 		slope = dy/dx
 
-		# # Don't focus on the size of the tangent line
-		# start_x = x-tangent_length
-		# end_x = x+tangent_length
-		# start_y = y - tangent_length*dy/dx
-		# end_y = y +tangent_length*dy/dx
-
 		c_x = np.sqrt((tangent_length/2)**2/(1+slope**2))	# This equation was found with c_x^2+c_y^2=(tangent_length/2)^2 and c_y=c_x*slope
 		c_y = slope*c_x
 		self.tangent = [(x+c_x,y+c_y),(x-c_x,y-c_y)]
@@ -311,7 +305,7 @@ class Line(object):
 			integral.append(int_pt)
 			prev_pt = pt
 
-		integral = [(pt[0], 500+(pt[1]-C)/400) for pt in integral] # WEIRD SCALING 
+		integral = [(pt[0], 500+(pt[1]-C)/100) for pt in integral] # WEIRD SCALING 
 		return integral
 
 
