@@ -13,7 +13,6 @@ class Model(object):
 		self.legend_status = True
 		
 
-
 	def grid_update(self):
 		"""
 		To keep track of the state of the grid

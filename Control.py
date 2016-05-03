@@ -17,7 +17,7 @@ from Model import *
 
 #define HSV color range of a tennis ball: open cv has range: H: 0-180, S: 0 -255, V: 0-255
 colors = {'bright_green':[(29, 84, 6),(64, 255, 255)],'bright_pink':[(145,84,120),(175,255,255)]}
-color='bright_pink'
+color = 'bright_pink' # Used for OpenCV
 
 class Controller(object): 
 	def __init__(self):
@@ -28,15 +28,20 @@ class Controller(object):
 		except:
 			pass
 
-		self.running_points = []
-		self.running = True
-		self.curve = None
-		self.last_space = False
-		self.last_press = False
-		self.last_g = False
-		self.last_l = False
-		self.last_c = False
-		self.pull_point = None
+		self.running_points = [] 	# Used for recording points
+		self.running = True			# Used by main to check if the code quits
+		self.curve = None		
+
+		self.last = { 				# Used to get key press 
+		"space": False,
+		"press": False,
+		"g": False,
+		"l": False,
+		"c": False,
+		"a": False
+		}
+
+		self.pull_point = None		# Determing which point is being pulled
 		self.mode = None
 		self.model = Model()
 
@@ -45,20 +50,25 @@ class Controller(object):
 
 
 	def handle_events(self):
+		"""
+		Handles all events. Called by view.draw(). 
+		"""
+
+		# Check for quitting the game
 		for event in pygame.event.get():	
 			if event.type == pygame.QUIT:	# Handle window closing
 				try: 
 					self.open_cv_control.close_camera()
 				except:
-					print "OpenCV Not Loaded"
+					print "OpenCV not loaded, no camera to close"
 				self.running = False
 
 		keys = pygame.key.get_pressed() # Returns a tuple of 1s and 0s corresponding to the the pressed keys
 		
-		hitbox_radius = 5 #for clicking on curves
+		hitbox_radius = 5 # Hitbox for clicking on curves
 
 		if self.mode == None:
-			if keys[pygame.K_SPACE] and not self.last_space: 
+			if keys[pygame.K_SPACE] and not self.last["space"]: 
 				self.mode = 'Open CV drawing'
 				self.open_cv_control.running_points = []
 				self.running_points = []
@@ -67,40 +77,38 @@ class Controller(object):
 			if keys[pygame.K_c] and not self.last_c:
 				self.mode = 'Open CV calibrating'
 
-			if pygame.mouse.get_pressed()[0] and not self.last_press:
+			if pygame.mouse.get_pressed()[0] and not self.last["press"]:
 
 				if self.curve:
 
-					mouse_pos = pygame.mouse.get_pos()
-
 					if self.pull_mode == "Handle":
-						for idx, pt in enumerate(self.curve.line.pull_points):
-							if abs(pt[0]-mouse_pos[0]) < hitbox_radius and abs(pt[1]-mouse_pos[1]) < hitbox_radius:
-								self.pull_point = idx
-								print "Pulling point is number:", idx
-								self.mode = 'Mouse pulling'
+
+						self.pull_point = self.find_point(self.curve.line.pull_points, pygame.mouse.get_pos())
+						if self.pull_point != None:
+							print "Pulling point is number:", self.pull_point
+							self.mode = 'Mouse pulling'
 
 					elif self.pull_mode == "Curve":
-						for idx, pt in enumerate(self.curve.line.points):
-							if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
-								self.pull_point = idx
-								print "Pulling point is number:", idx
-								self.mode = 'Mouse pulling'
+
+						self.pull_point = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=True)
+						if self.pull_point != None:
+							print "Pulling point is number:", self.pull_point
+							self.mode = 'Mouse pulling'
 				else:
 					self.mode = 'Mouse drawing'
 					self.running_points = []
 
-			if keys[pygame.K_t] and not self.last_t:
+			if keys[pygame.K_t] and not self.last["t"]:
 				self.mode = 'Show tangent'
 
-			if keys[pygame.K_a] and not self.last_a:
+			if keys[pygame.K_a] and not self.last["a"]:
 				self.mode = 'Show area'
 
 		elif self.mode == 'Mouse drawing':
 
 			self.draw_with_mouse()
 
-			if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
+			if pygame.mouse.get_pressed()[0] and not self.last["press"]: # Press Mouse1 to enter/leave Drawing mode
 				self.mode = None
 				if len(self.running_points)>15:
 					self.curve = Curve(self.running_points[::len(self.running_points)/7], self.pull_mode)  #[::len(self.running_points)/15]
@@ -109,19 +117,16 @@ class Controller(object):
 
 		elif self.mode == 'Open CV calibrating':
 			self.open_cv_control.calibrate_color()
-			if keys[pygame.K_c] and not self.last_c:
+			if keys[pygame.K_c] and not self.last["c"]:
 				self.mode = None
 
 		elif self.mode == 'Open CV drawing':
-			# try:
 			self.open_cv_control.draw_with_open_cv()
 			self.image = self.open_cv_control.image
-			# except:	
-			# 	self.open_cv_control.close_camera()
 
 			self.running_points = self.open_cv_control.running_points
 
-			if keys[pygame.K_SPACE] and not self.last_space:
+			if keys[pygame.K_SPACE] and not self.last["space"]:
 				self.mode = None
 				if len(self.running_points)>15:
 					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  #[::len(self.running_points)/15]
@@ -132,55 +137,53 @@ class Controller(object):
 		elif self.mode == "Mouse pulling":
 			self.pull_with_mouse()
 
-			if pygame.mouse.get_pressed()[0] and not self.last_press: # Press Mouse1 to enter/leave Drawing mode
+			if pygame.mouse.get_pressed()[0] and not self.last["press"]: # Press Mouse1 to leave Drawing mode
 				self.mode = None
 		
 		elif self.mode == 'Show tangent':
 			if pygame.mouse.get_pressed()[0]:
-				mouse_pos = pygame.mouse.get_pos()
+				idx = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=False)
+				if idx != None:
+					self.tangent_point = idx
+					self.curve.line.make_tangent(self.tangent_point,200)
 
-				for idx, pt in enumerate(self.curve.line.points):
-					if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
-						self.tangent_point = idx
-						self.curve.line.make_tangent(idx,200)
-
-			if keys[pygame.K_t] and not self.last_t:
+			if keys[pygame.K_t] and not self.last["t"]:
 				self.mode = None
 
 		elif self.mode == 'Show area':
 			if pygame.mouse.get_pressed()[0]:
-				mouse_pos = pygame.mouse.get_pos()
 
-				for idx, pt in enumerate(self.curve.line.points):
-					if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
-						self.curve.line.make_area(idx) 
-			if keys[pygame.K_a] and not self.last_a:
+				idx = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=False)
+				if idx != None:
+					self.curve.line.make_area(idx) 
+
+			if keys[pygame.K_a] and not self.last["a"]:
 				self.mode = None
 
-		'''Clearing the screen'''
+		"""Clearing the screen"""
 		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
 			self.mode = None
 			self.running_points = []
 			try:
 				self.open_cv_control.running_points = []
 			except:
-				print "OpenCV Not Loaded"
+				print "OpenCV not loaded, Cannot reset open_cv_control.running_points "
 			self.curve = None
 
 		""" Stuff to change grid, legend etc."""
-		if keys[pygame.K_g] and not self.last_g:
+		if keys[pygame.K_g] and not self.last["g"]:
 			self.model.grid_update()
-		if keys[pygame.K_l] and not self.last_l:
+		if keys[pygame.K_l] and not self.last["l"]:
 			self.model.legend_update()
 
-
-		self.last_space = keys[pygame.K_SPACE] # Keep track of the last Space 
-		self.last_press = pygame.mouse.get_pressed()[0]
-		self.last_g = keys[pygame.K_g]
-		self.last_l = keys[pygame.K_l]
-		self.last_c = keys[pygame.K_c]
-		self.last_t = keys[pygame.K_t]
-		self.last_a = keys[pygame.K_a]
+		# Keep track of last key presses
+		self.last["space"] = keys[pygame.K_SPACE] 
+		self.last["press"] = pygame.mouse.get_pressed()[0]
+		self.last["g"] = keys[pygame.K_g]
+		self.last["l"] = keys[pygame.K_l]
+		self.last["c"] = keys[pygame.K_c]
+		self.last["t"] = keys[pygame.K_t]
+		self.last["a"] = keys[pygame.K_a]
 
 	def draw_with_mouse(self):
 		'''This method is currently called by view.draw_input()
@@ -207,6 +210,17 @@ class Controller(object):
 		# Move point there
 		#self.curve.line.move_point(self.pull_point, mouse_pos, kind='sigmoid')
 		self.curve.move_point(self.pull_point, mouse_pos, line="line")
+
+	def find_point(self, all_points, mouse, vertical=True, radius=5):
+		"""
+		Find a point from a mouse click on a list of points.
+		vertical is a bool; when False it disables vertical search (you can select a point by clicking under it)
+		"""
+		found_idx = None
+		for idx, pt in enumerate(all_points):
+			if abs(pt[0]-mouse[0]) < radius and (abs(pt[1]-mouse[1]) < radius or not vertical):
+				found_idx = idx
+		return found_idx
 
 class Open_cv_control(object):
 	def __init__(self):
