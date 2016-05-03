@@ -21,7 +21,7 @@ color='bright_pink'
 
 class Controller(object): 
 	def __init__(self):
-		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating','Show tangent']
+		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating','Show tangent', 'Show area']
 
 		try:
 			self.open_cv_control = Open_cv_control()
@@ -93,6 +93,9 @@ class Controller(object):
 			if keys[pygame.K_t] and not self.last_t:
 				self.mode = 'Show tangent'
 
+			if keys[pygame.K_a] and not self.last_a:
+				self.mode = 'Show area'
+
 		elif self.mode == 'Mouse drawing':
 
 			self.draw_with_mouse()
@@ -139,7 +142,7 @@ class Controller(object):
 				for idx, pt in enumerate(self.curve.line.points):
 					if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
 						self.tangent_point = idx
-						self.curve.line.make_tangent(idx,100)
+						self.curve.line.make_tangent(idx,200)
 
 			if keys[pygame.K_t] and not self.last_t:
 				self.mode = None
@@ -150,8 +153,9 @@ class Controller(object):
 
 				for idx, pt in enumerate(self.curve.line.points):
 					if abs(pt[0]-mouse_pos[0]) < hitbox_radius:
-						self.curve.line.draw_area(idx) 
-
+						self.curve.line.make_area(idx) 
+			if keys[pygame.K_a] and not self.last_a:
+				self.mode = None
 
 		'''Clearing the screen'''
 		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
@@ -176,6 +180,7 @@ class Controller(object):
 		self.last_l = keys[pygame.K_l]
 		self.last_c = keys[pygame.K_c]
 		self.last_t = keys[pygame.K_t]
+		self.last_a = keys[pygame.K_a]
 
 	def draw_with_mouse(self):
 		'''This method is currently called by view.draw_input()
@@ -214,7 +219,6 @@ class Open_cv_control(object):
 		self.draw_color_lower = colors[self.color][0]
 		self.draw_color_upper = colors[self.color][1]
 		self.image = None
-		# self.display_window = True 
 		print 'Initiated open CV'
 
 	def draw_with_open_cv(self):
@@ -273,17 +277,17 @@ class Open_cv_control(object):
 				thickness = 2
 				cv2.line(hfframe, self.running_points[i - 1], self.running_points[i], (255, 0, 0), thickness)
 			
+			#Set self.image to frame to display in pygame window
 			self.image = cv2.cvtColor(hfframe,cv2.COLOR_BGR2RGB)
 			self.image = cv2.flip(self.image,1) #flip the image back for pygame display and rotate the image 
 			self.image = np.rot90(self.image) 
 
-			# if self.display_window:
-			cv2.imshow("Mask", hfmask)
-			cv2.imshow("Horizontal flip", hfframe)
+
+			#Uncomment the following lines to show frame and mask
+			# cv2.imshow("Mask", hfmask)
+			# cv2.imshow("Horizontal flip", hfframe)
 			cv2.waitKey(1)  #waitKey displays each image for 1 ms. and allow the loop to run. if itt's 0 the image will be displayed infinitely and no input will be accepted
-			# key = cv2.waitKey(1)
-			# if key == ord("q"):
-			# 	self.display_window = False
+			
 
 	def calibrate_color(self):
 		(grabbed, frame) = self.camera.read()

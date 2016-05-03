@@ -105,7 +105,9 @@ class Line(object):
 				self.pull_points = points
 			else:
 				self.points, self.pull_points = self.smoothen(points, pull_pts_num=pull_pts_num)
+
 		self.tangent = None
+		self.area = None
 	
 	def __index__(self, idx):
 		"""
@@ -129,20 +131,28 @@ class Line(object):
 		self.tangent = [(x+c_x,y+c_y),(x-c_x,y-c_y)]
 
 	def make_area(self,idx):
-		'''This function gets a user input point and creates a list of polygon to be plotted by view'''
-		self.points
+		'''This function gets a user input point and creates a list of lists of points to be plotted by view with pygame.draw.polygon'''
+
 		polygon = [[]]
 		prev_pt = self.points[0]
 		polygon_num = 0
+		polygon[polygon_num].append((self.points[0][0],500))
 		for i,pt in enumerate(self.points[:idx]):
-			if pt[1]*prev_pt[1]>0:
+			if (pt[1]-500)*(prev_pt[1]-500)>0:
 				polygon[polygon_num].append(pt)
 
-			elif pt[1]*prev_pt[1]<0:
+			elif (pt[1]-500)*(prev_pt[1]-500)<0:
+				polygon[polygon_num].append((self.points[i-1][0],500))
 				polygon.append([])
 				polygon_num+=1
+				#Add the point on the x axis
+				polygon[polygon_num].append((self.points[i-1][0],500))
+			prev_pt = pt
 
-		return polygon
+		polygon[polygon_num].append((self.points[idx][0],500))
+		# print polygon
+		print 'there are {} polygons'.format(len(polygon))
+		self.area = polygon
 
 	def deep_copy(self):
 		"""

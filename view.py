@@ -108,12 +108,23 @@ class View(object):
 		if self.controller.mode == 'Show tangent':
 			try:
 				pygame.draw.lines(self.screen, (0, 200, 255), False, self.controller.curve.line.tangent, 3)
-			except TypeError:
-				print type(self.controller.curve.line.tangent)
-
+			except TypeError: #if a tangent is not created, don't draw.
+				# print type(self.controller.curve.line.tangent)
+				pass
+		#Draw the area polygons
 		if self.controller.mode == 'Show area':
-			pygame.draw.polygon(self.screen,(0, 200, 255),self.controller.curve.line.area,0)
-
+			#initiate another surface so 
+			s = pygame.Surface((1000,1000))  # the size of your rect
+			s.set_alpha(100)                # alpha level
+			s.fill((255,255,255))           # this fills the entire surface
+			if self.controller.curve.line.area:
+				for i in range(len(self.controller.curve.line.area)):
+					try:
+						pygame.draw.polygon(s,(0, 200, 255),self.controller.curve.line.area[i],0)
+					except ValueError: #if a polygon has less than 2 points, don't draw
+						pass
+			self.screen.blit(s, (0,0))
+			
 		#Display the open cv image on screen
 		if self.controller.mode == 'Open CV drawing':
 			if self.controller.image != None:
