@@ -26,7 +26,7 @@ To use the program, run main.py.
 
 Input:
 Draw with you mouse by clicking and moving it across the screen. 
-Draw with open cv by pressing space, moving a tennis ball in your hand, and pressing space again when you are done. 
+Draw with open cv by pressing space, moving an object of the open CV drawing color (displayed on the screen) in your hand, and pressing space again when you are done. 
 
 Features:
 Click and drag the curves to see how the derivative and integral change. 
