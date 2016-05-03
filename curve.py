@@ -22,7 +22,6 @@ class Curve(object):
 		The derivative and integral of a smooth line will be smooth without smoothening.
 		"""
 		self.pull_mode = pull_mode
-
 		self.line = Line(points, pull_mode=self.pull_mode)
 		self.derivative = Line(self.line.derive(), smooth_bool=True, pull_mode=self.pull_mode)
 		self.integral = Line(self.line.integrate(), smooth_bool=True, pull_mode=self.pull_mode)
@@ -125,15 +124,25 @@ class Line(object):
 		dy = y-y_prev 
 		slope = dy/dx
 
-		# # Don't focus on the size of the tangent line
-		# start_x = x-tangent_length
-		# end_x = x+tangent_length
-		# start_y = y - tangent_length*dy/dx
-		# end_y = y +tangent_length*dy/dx
-
 		c_x = np.sqrt((tangent_length/2)**2/(1+slope**2))	# This equation was found with c_x^2+c_y^2=(tangent_length/2)^2 and c_y=c_x*slope
 		c_y = slope*c_x
 		self.tangent = [(x+c_x,y+c_y),(x-c_x,y-c_y)]
+
+	def make_area(self,idx):
+		'''This function gets a user input point and creates a list of polygon to be plotted by view'''
+		self.points
+		polygon = [[]]
+		prev_pt = self.points[0]
+		polygon_num = 0
+		for i,pt in enumerate(self.points[:idx]):
+			if pt[1]*prev_pt[1]>0:
+				polygon[polygon_num].append(pt)
+
+			elif pt[1]*prev_pt[1]<0:
+				polygon.append([])
+				polygon_num+=1
+
+		return polygon
 
 	def deep_copy(self):
 		"""
@@ -269,7 +278,7 @@ class Line(object):
 			integral.append(int_pt)
 			prev_pt = pt
 
-		integral = [(pt[0], 500+(pt[1]-C)/400) for pt in integral] # WEIRD SCALING 
+		integral = [(pt[0], 500+(pt[1]-C)/100) for pt in integral] # WEIRD SCALING 
 		return integral
 
 
