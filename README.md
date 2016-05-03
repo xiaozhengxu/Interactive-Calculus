@@ -31,6 +31,7 @@ Draw with open cv by pressing space, moving an object of the open CV drawing col
 Features:
 Click and drag the curves to see how the derivative and integral change. 
 Press 't' to see tangent lines. 
+Press 'a' to see area under curve highlighted.
 
 #### Authors
 [Matthew Beaudouin-Lafon](https://github.com/MatthewBeaudouinLafon), [March Saper](https://github.com/mesrumpled), [Xiaoxheng Xu](https://github.com/xiaozhengxu) 
