@@ -20,6 +20,28 @@ colors = {'bright_green':[(29, 84, 6),(64, 255, 255)],'bright_pink':[(145,84,120
 color = 'bright_pink' # Used for OpenCV
 
 class Controller(object): 
+	"""
+	Handles Keyboard, Mouse and OpenCV inputs. 
+	Instantiated in view.py. 
+
+	Attributes: 
+	running_points 		- Array holding points as they are drawn, but before a curve is created.
+	running 			- Bool telling main.py if the game is running (ie when it stops).
+	curve 				- Curve object, encapsulating the input line, the derivative and integral.
+	last 				- Dictionary of the previous status of relavent keys last loop.
+	pull_point 			- Index of the point being pulled when moving with Handles.
+	mode 				- String indicating the user mode (eg: Drawing, pulling, show tagents).
+	model 				- Model object.
+	pull_mode			- String, either Handle or Curve. 
+	image 				- Image used by OpenCV.
+
+	Methods:
+	handle_events		- Handles all events (run at every loop iteration).
+	change_mode			- Change mode based on keypresses.
+	draw_with_mouse 	- Get mouse input and add to running_points. Makes sure that the x values are monotonically increasing.
+	pull_with_mouse 	- Logic behind moving a curve from mouse input.
+	find_curve			- Hitbox handling when finding a handle on a curve.
+	"""
 	def __init__(self):
 		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating','Show tangent', 'Show area']
 
@@ -67,44 +89,9 @@ class Controller(object):
 		
 		hitbox_radius = 5 # Hitbox for clicking on curves
 
-		if self.mode == None:
-			if keys[pygame.K_SPACE] and not self.last["space"]: 
-				self.mode = 'Open CV drawing'
-				self.open_cv_control.running_points = []
-				self.running_points = []
-				self.curve = None
 
-			if keys[pygame.K_c] and not self.last_c:
-				self.mode = 'Open CV calibrating'
-
-			if pygame.mouse.get_pressed()[0] and not self.last["press"]:
-
-				if self.curve:
-
-					if self.pull_mode == "Handle":
-
-						self.pull_point = self.find_point(self.curve.line.pull_points, pygame.mouse.get_pos())
-						if self.pull_point != None:
-							print "Pulling point is number:", self.pull_point
-							self.mode = 'Mouse pulling'
-
-					elif self.pull_mode == "Curve":
-
-						self.pull_point = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=True)
-						if self.pull_point != None:
-							print "Pulling point is number:", self.pull_point
-							self.mode = 'Mouse pulling'
-				else:
-					self.mode = 'Mouse drawing'
-					self.running_points = []
-
-			if keys[pygame.K_t] and not self.last["t"]:
-				self.mode = 'Show tangent'
-
-			if keys[pygame.K_a] and not self.last["a"]:
-				self.mode = 'Show area'
-
-		elif self.mode == 'Mouse drawing':
+		# Perform the mode's action
+		if self.mode == 'Mouse drawing':
 
 			self.draw_with_mouse()
 
@@ -129,16 +116,13 @@ class Controller(object):
 			if keys[pygame.K_SPACE] and not self.last["space"]:
 				self.mode = None
 				if len(self.running_points)>15:
-					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  #[::len(self.running_points)/15]
+					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  
 					print self.running_points
 				else:
 					print 'Not enough points registered'
 
 		elif self.mode == "Mouse pulling":
 			self.pull_with_mouse()
-
-			if pygame.mouse.get_pressed()[0] and not self.last["press"]: # Press Mouse1 to leave Drawing mode
-				self.mode = None
 		
 		elif self.mode == 'Show tangent':
 			if pygame.mouse.get_pressed()[0]:
@@ -147,9 +131,6 @@ class Controller(object):
 					self.tangent_point = idx
 					self.curve.line.make_tangent(self.tangent_point,200)
 
-			if keys[pygame.K_t] and not self.last["t"]:
-				self.mode = None
-
 		elif self.mode == 'Show area':
 			if pygame.mouse.get_pressed()[0]:
 
@@ -157,8 +138,8 @@ class Controller(object):
 				if idx != None:
 					self.curve.line.make_area(idx) 
 
-			if keys[pygame.K_a] and not self.last["a"]:
-				self.mode = None
+		# Change self.mode according to keypresses
+		self.change_mode(keys)
 
 		"""Clearing the screen"""
 		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
@@ -184,6 +165,58 @@ class Controller(object):
 		self.last["c"] = keys[pygame.K_c]
 		self.last["t"] = keys[pygame.K_t]
 		self.last["a"] = keys[pygame.K_a]
+
+	def change_mode(self, keys):
+		"""
+		Check if the user is changing modes.
+		Used in self.handle_events()
+		"""
+
+		# Moving handles and creating Curve
+		if pygame.mouse.get_pressed()[0] and not self.last["press"]:
+			if self.mode == "Mouse pulling":
+				self.mode = None
+			elif self.curve:
+
+				if self.pull_mode == "Handle":
+
+					self.pull_point = self.find_point(self.curve.line.pull_points, pygame.mouse.get_pos())
+					if self.pull_point != None:
+						print "Pulling point is number:", self.pull_point
+						self.mode = 'Mouse pulling'
+				elif self.pull_mode == "Curve":
+
+					self.pull_point = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=True)
+					if self.pull_point != None:
+						print "Pulling point is number:", self.pull_point
+						self.mode = 'Mouse pulling'
+			else:
+				self.mode = 'Mouse drawing'
+				self.running_points = []
+
+		# Open CV Drawing
+		if keys[pygame.K_SPACE] and not self.last["space"]: 
+			if self.mode == 'Open CV drawing':
+				self.mode = None
+			else:
+				self.mode = 'Open CV drawing'
+				self.open_cv_control.running_points = []
+				self.running_points = []
+				self.curve = None
+
+		# Tangent
+		if keys[pygame.K_t] and not self.last["t"]:
+			if self.mode == "Show tangent":
+				self.mode = None 
+			else:
+				self.mode = "Show tangent"
+
+		# Area
+		if keys[pygame.K_a] and not self.last["a"]:
+			if self.mode == "Show area":
+				self.mode = None 
+			else:
+				self.mode = "Show area"
 
 	def draw_with_mouse(self):
 		'''This method is currently called by view.draw_input()
@@ -325,13 +358,3 @@ class Open_cv_control(object):
 	def close_camera(self):
 		self.camera.release()
 		cv2.destroyAllWindows()
-
-
-	
-
-# if __name__ == "main":
-# 	for testing
-# 	c = Open_cv_control()
-# 	Open_cv_control.calibrate_color()
-# 	if 
-
