@@ -15,5 +15,5 @@ Similarly to differentiation, we can get the curve’s integral using trapezoida
 
 We adopted the model-view-controller framework in this project. Below is a UML diagram of our code structure. The Line class contains methods for processing lines (deriving etc.). The Curve class keeps track of the input, integral and derivative Lines in relation to one another. 
 
-![UML Diagram](https://github.com/xiaozhengxu/Interactive-Calculus/blob/gh-pages/uml.png)
+![UML Diagram](uml.png)
 
