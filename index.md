@@ -11,7 +11,7 @@ Yes, visual calculus! This project aims to help individuals understand and inter
 ![Visual Calculus](viscalcexample.png)
 
 ### Using Visual Calculus
-
+ 
 #### Requirements
 
 Our project can be cloned from [github](https://github.com/xiaozhengxu/Interactive-Calculus) or directly downloaded from the buttons above.
