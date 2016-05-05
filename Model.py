@@ -24,18 +24,6 @@ class Model(object):
 		for label in button_list:
 			self.buttons[label] = Button(label)
 
-		# self.buttons = {
-		# "Draw": Button("Draw"),
-		# "Clear": Button("Clear"),
-		# "Tangent": Button("Tangent"),
-		# "Area": Button("Area"),
-		# "Crit": Button("Crit"),
-		# "Grid": Button("Grid"),
-		# "Camera": Button("Camera"),
-		# "Help": Button("Help")
-		# }
-		print self.buttons
-
 		for i, key in enumerate(button_list): # Force the loading of buttons in an order
 			self.buttons[key].position = (67 + (66+50) * i, 940)	
 
@@ -103,7 +91,6 @@ class Button(object):
 
 		self.label = fontsmall.render(img_name, 1, (150,150,150))
 		self.text_pos = (self.position[0], 910)
-		print self.label.get_width()
 
 
 		

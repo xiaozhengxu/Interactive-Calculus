@@ -85,6 +85,34 @@ class View(object):
 		#NOTE: Redrawn every time to handle curve movement
 		self.screen.fill(pygame.Color('white'))
 
+		#Draw the area polygons
+		if self.controller.mode['Show area']:
+			#initiate another surface so 
+			s = pygame.Surface((1000,1000))  # the size of your rect
+			s.set_alpha(100)                # alpha level
+			s.fill((255,255,255))           # this fills the entire surface
+			if self.controller.curve.line.area:
+				for i in range(len(self.controller.curve.line.area)):
+					try:
+						pygame.draw.polygon(self.screen,(0, 200, 255),self.controller.curve.line.area[i],0)
+					except ValueError: #if a polygon has less than 2 points, don't draw
+						pass
+			# self.screen.blit(s, (0,0))
+
+			# for corresponding point. Finds the correct y value and draws a circle there if appropriate
+			x_position = pygame.mouse.get_pos()[0]
+
+			found_y = 1
+			for idx, pt in enumerate(self.controller.curve.integral.points):
+					if abs(pt[0]-x_position) < 5:
+						found_y = pt[1]
+			if self.controller.curve.integral.points[1][0]-7 <= x_position <= self.controller.curve.integral.points[-1][0]:
+				pygame.draw.circle(self.screen, (100, 0, 0), (int(x_position), int(found_y)), 4)
+
+			elif self.controller.curve.integral.points[-1][0]-7 < x_position:
+				pygame.draw.circle(self.screen, (100, 0, 0), (int(self.controller.curve.integral.points[-1][0]), int(self.controller.curve.integral.points[-1][1])), 4)
+
+
 		if self.controller.model.grid_status:	# True, False, 
 			self.draw_grid()
 		if self.controller.model.legend_status:	# True, False, 
@@ -96,24 +124,29 @@ class View(object):
 		#Draw buttons
 		for key in self.controller.model.buttons:
 			button = self.controller.model.buttons[key]
-			self.screen.blit(button.background[button.toggle], button.position)
-			self.screen.blit(button.image, button.position)
+			self.screen.blit(button.background[button.toggle], button.position) # Blit the button's background
+			self.screen.blit(button.image, button.position)						# Blit the image itself
 			if self.controller.mode["Show help"]:
 				surf = self.controller.model.buttons[key].label
 				text_pos = ((50-button.label.get_width())/2+button.position[0], button.position[1]-25)
-				self.screen.blit(surf, text_pos)
+				self.screen.blit(surf, text_pos)								# Blit help if help mode is on
 
-		# if self.controller.mode["Show help"]:
-		# 	for key in self.controller.model.buttons:
-		# 		surf = self.controller.model.buttons[key].label
-		# 		pos = (self.controller.model.buttons[key].text_pos)
-		# 		self.screen.blit(surf, pos)
+
 
 		if self.controller.mode['Mouse drawing']:
 			try:
 				pygame.draw.lines(self.screen, (0 , 153, 76), False, self.controller.running_points, 2)
 			except ValueError: #If there are not enough points in lines (in the beginning of drawing)
 				pass
+						#Display critical points lines
+		if self.controller.mode['Show critical points']:
+			for i in self.controller.curve.derivative.cr_index:
+				found_y = 1
+				for idx, pt in enumerate(self.controller.curve.line.points):
+					if abs(pt[0]-i[0]) < 5:
+						found_y = pt[1]
+
+				pygame.draw.line(self.screen, (204, 204, 0), (i[0],i[1]), (i[0],found_y), 2)
 
 		#Draw the curves
 		if self.controller.curve:
@@ -148,46 +181,7 @@ class View(object):
 				pygame.draw.circle(self.screen, (0, 0, 205), (int(self.controller.curve.derivative.points[-1][0]), int(self.controller.curve.derivative.points[-1][1])), 4)
 
 			elif self.controller.curve.derivative.points[1][0] -7 > x_position:
-				pygame.draw.circle(self.screen, (0, 0, 205), (int(self.controller.curve.derivative.points[1][0]), int(self.controller.curve.derivative.points[1][1])), 4)
-
-		#Draw the area polygons
-		if self.controller.mode['Show area']:
-			#initiate another surface so 
-			s = pygame.Surface((1000,1000))  # the size of your rect
-			s.set_alpha(100)                # alpha level
-			s.fill((255,255,255))           # this fills the entire surface
-			if self.controller.curve.line.area:
-				for i in range(len(self.controller.curve.line.area)):
-					try:
-						pygame.draw.polygon(s,(0, 200, 255),self.controller.curve.line.area[i],0)
-					except ValueError: #if a polygon has less than 2 points, don't draw
-						pass
-			self.screen.blit(s, (0,0))
-
-			# for corresponding point. Finds the correct y value and draws a circle there if appropriate
-			x_position = pygame.mouse.get_pos()[0]
-
-			found_y = 1
-			for idx, pt in enumerate(self.controller.curve.integral.points):
-					if abs(pt[0]-x_position) < 5:
-						found_y = pt[1]
-			if self.controller.curve.integral.points[1][0]-7 <= x_position <= self.controller.curve.integral.points[-1][0]:
-				pygame.draw.circle(self.screen, (100, 0, 0), (int(x_position), int(found_y)), 4)
-
-			elif self.controller.curve.integral.points[-1][0]-7 < x_position:
-				pygame.draw.circle(self.screen, (100, 0, 0), (int(self.controller.curve.integral.points[-1][0]), int(self.controller.curve.integral.points[-1][1])), 4)
-
-
-		#Display critical points lines
-		if self.controller.mode['Show critical points']:
-			for i in self.controller.curve.derivative.cr_index:
-				found_y = 1
-				for idx, pt in enumerate(self.controller.curve.line.points):
-					if abs(pt[0]-i[0]) < 5:
-						found_y = pt[1]
-
-				pygame.draw.line(self.screen, (204, 204, 0), (i[0],i[1]), (i[0],found_y), 2)
-				
+				pygame.draw.circle(self.screen, (0, 0, 205), (int(self.controller.curve.derivative.points[1][0]), int(self.controller.curve.derivative.points[1][1])), 4)		
 
 		#Display the open cv image on screen
 		if self.controller.mode['Open CV drawing']:
@@ -201,8 +195,8 @@ class View(object):
 		# #display the current mode 
 		# self.display_text('Current mode: {}'.format(self.controller.mode),fontsmall, (186,85,211), 0,0) #purple color
 		# Display the instructions for the mode underneath the mode name
-		instructions = self.get_instructions_for_mode(self.controller.mode)
-		self.display_text(instructions,fontsmall,(186,85,211), 0, 30)
+		# instructions = self.get_instructions_for_mode(self.controller.mode)
+		# self.display_text(instructions,fontsmall,(186,85,211), 0, 30)
 
 		pygame.display.update()
 

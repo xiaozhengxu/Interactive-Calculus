@@ -70,6 +70,7 @@ class Controller(object):
 		"Show area": False,
 		"Show critical points": False,
 		"Mouse drawing": False,
+		"Mouse pre-drawing": True,		# Start in pre-drawing mode
 		"Mouse pulling": False,
 		"Open CV drawing": False,
 		"Open CV calibrating": False,
@@ -102,23 +103,47 @@ class Controller(object):
 		
 		hitbox_radius = 5 # Hitbox for clicking on curves
 
+		mouse1 = pygame.mouse.get_pressed()[0]
+
+		mouse1_used = False
 
 		# Perform the mode's action
-		if self.mode['Mouse drawing']:
+		# if self.mode['Mouse drawing']:
+		#	self.draw_with_mouse()
+		# 	if mouse1 and not self.last["press"]: # Press Mouse1 to enter/leave Drawing mode
+		# 			
+		# 		mouse1_used = True
+		# 		self.clear_modes()
+		# 		if len(self.running_points)>15:
+		# 			self.curve = Curve(self.running_points[::len(self.running_points)/7], self.pull_mode)  #[::len(self.running_points)/15]
+		# 		else:
+		# 			print 'Not enough points registered'
 
-			self.draw_with_mouse()
+		if self.mode['Mouse pre-drawing']:
+			if mouse1 and not self.last["press"]:
+				self.mode["Mouse pre-drawing"] = False
+				self.mode["Mouse drawing"] = True
 
-			if pygame.mouse.get_pressed()[0] and not self.last["press"]: # Press Mouse1 to enter/leave Drawing mode
+		elif self.mode['Mouse drawing']:
+			self.draw_with_mouse()	
+
+			if mouse1 and not self.last["press"]: # Press Mouse1 to enter/leave Drawing mode
+				
+				mouse1_used = True
 				self.clear_modes()
 				if len(self.running_points)>15:
 					self.curve = Curve(self.running_points[::len(self.running_points)/7], self.pull_mode)  #[::len(self.running_points)/15]
 				else:
 					print 'Not enough points registered'
 
+
 		elif self.mode['Open CV calibrating']:
-			self.open_cv_control.calibrate_color()
-			if keys[pygame.K_c] and not self.last["w"]:
-				self.clear_modes()
+			try: 
+				self.open_cv_control.calibrate_color()
+				if keys[pygame.K_c] and not self.last["w"]:
+					self.clear_modes()
+			except:
+				print "OpenCV not loaded: Cannot calibrate OpenCV"
 
 		elif self.mode['Open CV drawing']:
 			try:
@@ -152,7 +177,6 @@ class Controller(object):
 				self.curve.line.make_area(idx) 
 
 		if self.mode["Show critical points"]:
-
 			if self.curve:
 				self.curve.derivative.make_crpoints()
 
@@ -160,7 +184,8 @@ class Controller(object):
 		self.change_mode_key(keys)
 
 		# Change self.mode according to on-screen buttons
-		if pygame.mouse.get_pressed()[0] and not self.last["press"]:
+		if mouse1 and not self.last["press"]:
+			# mouse1_used = True
 			self.change_mode_btn()
 
 		# Update the button's model of the current mode
@@ -176,7 +201,7 @@ class Controller(object):
 
 		# Keep track of last key presses
 		self.last["space"] = keys[pygame.K_SPACE] 
-		self.last["press"] = pygame.mouse.get_pressed()[0]
+		self.last["press"] = mouse1 and not mouse1_used
 		self.last["g"] = keys[pygame.K_g]
 		self.last["l"] = keys[pygame.K_l]
 		self.last["w"] = keys[pygame.K_c]
@@ -206,10 +231,6 @@ class Controller(object):
 				if self.pull_point != None:
 					print "Pulling point is number:", self.pull_point
 					self.mode['Mouse pulling'] = True
-			else:
-				self.clear_modes()
-				self.mode['Mouse drawing'] = True
-				self.running_points = []
 
 		# Clearing the screen if mouse 2 is pressed
 		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
@@ -251,7 +272,7 @@ class Controller(object):
 		"""
 		Update the toggle attribute of the buttons based on the modes.
 		"""
-		self.model.buttons["Draw"].toggle = self.mode["Mouse drawing"]
+		self.model.buttons["Draw"].toggle = self.mode["Mouse drawing"] or self.mode["Mouse pre-drawing"]
 		self.model.buttons["Camera"].toggle = self.mode["Open CV drawing"]
 		self.model.buttons["Tangent"].toggle = self.mode["Show tangent"]
 		self.model.buttons["Area"].toggle = self.mode["Show area"]
@@ -261,16 +282,17 @@ class Controller(object):
 		"""
 		Change the various modes based on button clicks.
 		"""
-		if self.button_hit("Draw") and not self.curve:
 
+		if self.button_hit("Draw") and not self.curve:
 			self.clear_modes()				# Get into Drawing mode
-			self.mode['Mouse drawing'] = True
+			self.mode['Mouse pre-drawing'] = True
 			self.running_points = []
 
 		elif self.button_hit("Clear"):
 			self.clear_screen()
 
 		elif self.button_hit("Camera"):
+			self.clear_modes()
 			if self.mode['Open CV drawing']:
 				self.mode['Open CV drawing'] = False
 			else:
@@ -283,27 +305,24 @@ class Controller(object):
 					print "Open CV Not available."
 
 		elif self.button_hit("Tangent"):
-			if self.mode["Show tangent"]:
-				self.mode["Show tangent"] = False
-			elif self.curve:
-				self.mode["Show tangent"] = True
+			# The following makes sense with logic table. 
+			# The mode should only engage when there is a curve and the mode is off.
+			self.mode["Show tangent"] = not self.mode["Show tangent"] and bool(self.curve)
 
 		elif self.button_hit("Area"):
-			if self.mode["Show area"]:
-				self.mode["Show area"] = False
-			elif self.curve:
-				self.mode["Show area"] = True
+			# Same logic as above
+			self.mode["Show area"] = not self.mode["Show area"] and bool(self.curve)
 
 		elif self.button_hit("Crit"):
-			if self.mode["Show critical points"]:
-				self.mode["Show critical points"] = False
-			elif self.curve:
-				self.mode["Show critical points"] = True
+			# Same logic as above
+			self.mode["Show critical points"] = not self.mode["Show critical points"] and bool(self.curve)
 
 		elif self.button_hit("Grid"):
+			# Toggle Grid
 			self.model.grid_update()
 
 		elif self.button_hit("Help"):
+			# Toggle Help
 			self.mode["Show help"] = not self.mode["Show help"]
 
 
@@ -321,12 +340,13 @@ class Controller(object):
 
 	def clear_modes(self):
 		"""
-		Makes the value for all modes False. 
-		Used when there should only be one mode
+		Makes the value for all modes False, excluding "Show help". 
+		Used when there should only be one mode eg: Drawing
 		"""
-		print "Clearing Mode"
+		print "Clearing Modes"
 		for key in self.mode:
-			self.mode[key] = False
+			if key != "Show help":
+				self.mode[key] = False
 
 	def draw_with_mouse(self):
 		'''This method is currently called by view.draw_input()

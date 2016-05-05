@@ -133,11 +133,11 @@ class Line(object):
 				polygon[polygon_num].append(pt)
 
 			elif (pt[1]-500)*(prev_pt[1]-500)<0:
-				polygon[polygon_num].append((self.points[i-1][0],500))
+				polygon[polygon_num].append((self.points[i][0],500))
 				polygon.append([])
 				polygon_num+=1
 				#Add the point on the x axis
-				polygon[polygon_num].append((self.points[i-1][0],500))
+				polygon[polygon_num].append((self.points[i][0],500))
 			prev_pt = pt
 
 		polygon[polygon_num].append((self.points[idx][0],500))
