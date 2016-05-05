@@ -11,6 +11,9 @@ After interpolation, we can have an arbitrarily large density of points. Therefo
 
 Similarly to differentiation, we can get the curve’s integral using trapezoidal approximation. We find the area between two consecutive points by getting the area of the trapezoid defined by the two points and their projection onto the x-axis. 
 
+Open CV drawing uses a similar code structure to http://www.pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/. 
+cv2.inRange() and masks are used to detect contours of a colored object. The position of the center of the contour passes from the Opencv controller to curve. Color ranges are in hsv and can be set from http://colorizer.org/. Currently it supports bright pink and bright green. The open CV mask is flipped and displayed in the pygame window. 
+
 ### Code Structure
 
 We adopted the model-view-controller framework in this project. Below is a UML diagram of our code structure. The Line class contains methods for processing lines (deriving etc.). The Curve class keeps track of the input, integral and derivative Lines in relation to one another. 
