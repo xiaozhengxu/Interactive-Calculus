@@ -8,7 +8,8 @@ This module requires scipy, numpy, OpenCV, and pygame.
 
 To install these in a linux system use:
 
- ` $ sudo apt-get install python-numpy python-scipy python-opencv python-pygame`
+ ` $ sudo apt-get install python-numpy python-scipy python-pygame`
+   $ sudo apt-get install libopencv-dev python-opencv
 
 To install these in other operating systems visit:
 
