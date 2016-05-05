@@ -4,4 +4,6 @@ layout: template
 filename: howto
 --- 
 
-# This is who we are
+We are [Matthew Beaudouin-Lafon](https://github.com/MatthewBeaudouinLafon), [March Saper](https://github.com/mesrumpled), [Xiaoxheng Xu](https://github.com/xiaozhengxu), students at Olin College of Engineering . We wrote this code as our final project for Software Design Spring 2016. 
+
+We want to give attribution to http://www.pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/ for Open CV object tracking.
