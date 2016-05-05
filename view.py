@@ -86,7 +86,7 @@ class View(object):
 			
 		self.draw_graph()
 
-		if self.controller.mode == 'Mouse drawing':
+		if self.controller.mode['Mouse drawing']:
 			try:
 				pygame.draw.lines(self.screen, (0, 0, 255), False, self.controller.running_points, 2)
 			except ValueError: #If there are not enough points in lines (in the beginning of drawing)
@@ -105,14 +105,14 @@ class View(object):
 					pygame.draw.circle(self.screen, (0,0,0), pt_int, 3)
 
 		#Draw the tangent lines
-		if self.controller.mode == 'Show tangent':
+		if self.controller.mode['Show tangent']:
 			try:
 				pygame.draw.lines(self.screen, (0, 200, 255), False, self.controller.curve.line.tangent, 3)
 			except TypeError: #if a tangent is not created, don't draw.
 				# print type(self.controller.curve.line.tangent)
 				pass
 		#Draw the area polygons
-		if self.controller.mode == 'Show area':
+		if self.controller.mode['Show area']:
 			#initiate another surface so 
 			s = pygame.Surface((1000,1000))  # the size of your rect
 			s.set_alpha(100)                # alpha level
@@ -126,24 +126,24 @@ class View(object):
 			self.screen.blit(s, (0,0))
 			
 		#Display the open cv image on screen
-		if self.controller.mode == 'Open CV drawing':
+		if self.controller.mode['Open CV drawing']:
 			if self.controller.image != None:
 				image=pygame.surfarray.make_surface(self.controller.image)
 				image.set_alpha(150) #255 is fully opaque, 0 is fully transparent
 				self.screen.blit(image,(0, 0))
 
-		#display the current mode 
-		self.display_text('Current mode: {}'.format(self.controller.mode),fontsmall, (186,85,211), 0,0) #purple color
-		#display the instructions for the mode underneath the mode name
+		# #display the current mode 
+		# self.display_text('Current mode: {}'.format(self.controller.mode),fontsmall, (186,85,211), 0,0) #purple color
+		# Display the instructions for the mode underneath the mode name
 		instructions = self.get_instructions_for_mode(self.controller.mode)
 		self.display_text(instructions,fontsmall,(186,85,211), 0, 30)
 
 		pygame.display.update()
 
 	def get_instructions_for_mode(self, mode):
-		if mode == 'Show tangent':
-			return 'click on a point to show tangent.'
-		if mode == 'Open CV drawing':
+		if mode['Show tangent']:
+			return 'Click on a point to show tangent.'
+		if mode['Open CV drawing']:
 			return 'Open CV drawing color: {}'.format(color)
 
 

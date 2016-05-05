@@ -30,7 +30,7 @@ class Controller(object):
 	curve 				- Curve object, encapsulating the input line, the derivative and integral.
 	last 				- Dictionary of the previous status of relavent keys last loop.
 	pull_point 			- Index of the point being pulled when moving with Handles.
-	mode 				- String indicating the user mode (eg: Drawing, pulling, show tagents).
+	mode 				- Dictionary with the mode for key, and a bool indicating whether it is active for value.
 	model 				- Model object.
 	pull_mode			- String, either Handle or Curve. 
 	image 				- Image used by OpenCV.
@@ -63,8 +63,17 @@ class Controller(object):
 		"a": False
 		}
 
+		self.mode = {
+		"Show tangent": False,
+		"Show area": False,
+		"Mouse drawing": False,
+		"Mouse pulling": False,
+		"Open CV drawing": False,
+		"Open CV calibrating": False
+		}
+
 		self.pull_point = None		# Determing which point is being pulled
-		self.mode = None
+
 		self.model = Model()
 
 		self.pull_mode = "Handle"
@@ -91,59 +100,56 @@ class Controller(object):
 
 
 		# Perform the mode's action
-		if self.mode == 'Mouse drawing':
+		if self.mode['Mouse drawing']:
 
 			self.draw_with_mouse()
 
 			if pygame.mouse.get_pressed()[0] and not self.last["press"]: # Press Mouse1 to enter/leave Drawing mode
-				self.mode = None
+				self.clear_modes()
 				if len(self.running_points)>15:
 					self.curve = Curve(self.running_points[::len(self.running_points)/7], self.pull_mode)  #[::len(self.running_points)/15]
 				else:
 					print 'Not enough points registered'
 
-		elif self.mode == 'Open CV calibrating':
+		elif self.mode['Open CV calibrating']:
 			self.open_cv_control.calibrate_color()
 			if keys[pygame.K_c] and not self.last["c"]:
-				self.mode = None
+				self.clear_modes()
 
-		elif self.mode == 'Open CV drawing':
+		elif self.mode['Open CV drawing']:
 			self.open_cv_control.draw_with_open_cv()
 			self.image = self.open_cv_control.image
 
 			self.running_points = self.open_cv_control.running_points
 
 			if keys[pygame.K_SPACE] and not self.last["space"]:
-				self.mode = None
+				self.clear_modes()
 				if len(self.running_points)>15:
 					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  
 					print self.running_points
 				else:
 					print 'Not enough points registered'
 
-		elif self.mode == "Mouse pulling":
+		elif self.mode["Mouse pulling"]:
 			self.pull_with_mouse()
 		
-		elif self.mode == 'Show tangent':
-			if pygame.mouse.get_pressed()[0]:
-				idx = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=False)
-				if idx != None:
-					self.tangent_point = idx
-					self.curve.line.make_tangent(self.tangent_point,200)
+		if self.mode["Show tangent"]:
+			idx = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=False)
+			if idx != None:
+				self.tangent_point = idx
+				self.curve.line.make_tangent(self.tangent_point,200)
 
-		elif self.mode == 'Show area':
-			if pygame.mouse.get_pressed()[0]:
-
-				idx = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=False)
-				if idx != None:
-					self.curve.line.make_area(idx) 
+		if self.mode['Show area']:
+			idx = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=False)
+			if idx != None:
+				self.curve.line.make_area(idx) 
 
 		# Change self.mode according to keypresses
 		self.change_mode(keys)
 
 		"""Clearing the screen"""
 		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
-			self.mode = None
+			self.clear_modes()
 			self.running_points = []
 			try:
 				self.open_cv_control.running_points = []
@@ -174,49 +180,56 @@ class Controller(object):
 
 		# Moving handles and creating Curve
 		if pygame.mouse.get_pressed()[0] and not self.last["press"]:
-			if self.mode == "Mouse pulling":
-				self.mode = None
-			elif self.curve:
+			if self.mode["Mouse pulling"]: 	# Leave pulling mode if in drawing mode
+				self.mode["Mouse pulling"] = False
 
+			elif self.curve:				# If there is already a curve, find a pull point and get into pulling mode
 				if self.pull_mode == "Handle":
-
 					self.pull_point = self.find_point(self.curve.line.pull_points, pygame.mouse.get_pos())
-					if self.pull_point != None:
-						print "Pulling point is number:", self.pull_point
-						self.mode = 'Mouse pulling'
-				elif self.pull_mode == "Curve":
 
+				elif self.pull_mode == "Curve":
 					self.pull_point = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=True)
-					if self.pull_point != None:
-						print "Pulling point is number:", self.pull_point
-						self.mode = 'Mouse pulling'
+
+				if self.pull_point != None:
+					print "Pulling point is number:", self.pull_point
+					self.mode['Mouse pulling'] = True
 			else:
-				self.mode = 'Mouse drawing'
+				self.clear_modes()
+				self.mode['Mouse drawing'] = True
 				self.running_points = []
 
 		# Open CV Drawing
 		if keys[pygame.K_SPACE] and not self.last["space"]: 
-			if self.mode == 'Open CV drawing':
-				self.mode = None
+			if self.mode['Open CV drawing']:
+				self.mode['Open CV drawing'] = False
 			else:
-				self.mode = 'Open CV drawing'
+				self.mode['Open CV drawing'] = True
 				self.open_cv_control.running_points = []
 				self.running_points = []
 				self.curve = None
 
 		# Tangent
 		if keys[pygame.K_t] and not self.last["t"]:
-			if self.mode == "Show tangent":
-				self.mode = None 
-			else:
-				self.mode = "Show tangent"
+			if self.mode["Show tangent"]:
+				self.mode["Show tangent"] = False
+			elif self.curve:
+				self.mode["Show tangent"] = True
 
-		# Area
+		# Tangent
 		if keys[pygame.K_a] and not self.last["a"]:
-			if self.mode == "Show area":
-				self.mode = None 
-			else:
-				self.mode = "Show area"
+			if self.mode["Show area"]:
+				self.mode["Show area"] = False
+			elif self.curve:
+				self.mode["Show area"] = True
+
+	def clear_modes(self):
+		"""
+		Makes the value for all modes False. 
+		Used when there should only be one mode
+		"""
+		print "Clearing Mode"
+		for key in self.mode:
+			self.mode[key] = False
 
 	def draw_with_mouse(self):
 		'''This method is currently called by view.draw_input()

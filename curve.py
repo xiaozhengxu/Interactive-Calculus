@@ -137,7 +137,7 @@ class Line(object):
 		prev_pt = self.points[0]
 		polygon_num = 0
 		polygon[polygon_num].append((self.points[0][0],500))
-		for i,pt in enumerate(self.points[:idx]):
+		for i,pt in enumerate(self.points[:idx+1]):
 			if (pt[1]-500)*(prev_pt[1]-500)>0:
 				polygon[polygon_num].append(pt)
 
@@ -151,7 +151,7 @@ class Line(object):
 
 		polygon[polygon_num].append((self.points[idx][0],500))
 		# print polygon
-		print 'there are {} polygons'.format(len(polygon))
+		# print 'there are {} polygons'.format(len(polygon))
 		self.area = polygon
 
 	def deep_copy(self):
