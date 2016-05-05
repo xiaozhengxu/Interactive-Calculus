@@ -26,14 +26,9 @@ http://www.numpy.org/
 #### Usage
 To use the program, run main.py.
 
-Input:
-Draw with you mouse by clicking and moving it across the screen. 
-Draw with open cv by pressing space, moving an object of the open CV drawing color (displayed on the screen) in your hand, and pressing space again when you are done. 
+`  python main.py`
 
-Features:
-Click and drag the curves to see how the derivative and integral change. 
-Press 't' to see tangent lines. 
-Press 'a' to see area under curve highlighted.
+Toggle on the draw button in the bottom left corner to begin. Click once to begin drawing and again to stop. From there, use the buttons to view tangent lines, critical points and more. Toggle on the camera button to draw a curve using webcam. (A tennis ball will work best.) 
 
 #### Authors
 [Matthew Beaudouin-Lafon](https://github.com/MatthewBeaudouinLafon), [March Saper](https://github.com/mesrumpled), [Xiaoxheng Xu](https://github.com/xiaozhengxu) 
