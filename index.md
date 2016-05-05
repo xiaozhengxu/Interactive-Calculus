@@ -8,6 +8,8 @@ filename: index
 
 ### Using Visual Calculus
 
+#### Requirements
+
 This module requires scipy, numpy, OpenCV, and pygame. 
 
 To install these in a linux system use:
