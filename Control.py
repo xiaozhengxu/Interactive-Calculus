@@ -43,7 +43,7 @@ class Controller(object):
 	find_curve			- Hitbox handling when finding a handle on a curve.
 	"""
 	def __init__(self):
-		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating','Show tangent', 'Show area']
+		self.modes=[None, 'Mouse drawing','Open CV drawing', "Mouse pulling", 'Open CV calibrating','Show tangent', 'Show area', 'Show critical points']
 
 		try:
 			self.open_cv_control = Open_cv_control()
@@ -59,13 +59,15 @@ class Controller(object):
 		"press": False,
 		"g": False,
 		"l": False,
-		"c": False,
-		"a": False
+		"w": False,
+		"a": False,
+		"c": False
 		}
 
 		self.mode = {
 		"Show tangent": False,
 		"Show area": False,
+		"Show critical points": False,
 		"Mouse drawing": False,
 		"Mouse pulling": False,
 		"Open CV drawing": False,
@@ -113,11 +115,14 @@ class Controller(object):
 
 		elif self.mode['Open CV calibrating']:
 			self.open_cv_control.calibrate_color()
-			if keys[pygame.K_c] and not self.last["c"]:
+			if keys[pygame.K_c] and not self.last["w"]:
 				self.clear_modes()
 
 		elif self.mode['Open CV drawing']:
-			self.open_cv_control.draw_with_open_cv()
+			try:
+				self.open_cv_control.draw_with_open_cv()
+			except:
+				pass
 			self.image = self.open_cv_control.image
 
 			self.running_points = self.open_cv_control.running_points
@@ -144,6 +149,11 @@ class Controller(object):
 			if idx != None:
 				self.curve.line.make_area(idx) 
 
+		if self.mode["Show critical points"]:
+
+			if self.curve:
+				self.curve.derivative.make_crpoints()
+
 		# Change self.mode according to keypresses
 		self.change_mode(keys)
 
@@ -168,9 +178,10 @@ class Controller(object):
 		self.last["press"] = pygame.mouse.get_pressed()[0]
 		self.last["g"] = keys[pygame.K_g]
 		self.last["l"] = keys[pygame.K_l]
-		self.last["c"] = keys[pygame.K_c]
+		self.last["w"] = keys[pygame.K_c]
 		self.last["t"] = keys[pygame.K_t]
 		self.last["a"] = keys[pygame.K_a]
+		self.last["c"] = keys[pygame.K_c]
 
 	def change_mode(self, keys):
 		"""
@@ -215,12 +226,22 @@ class Controller(object):
 			elif self.curve:
 				self.mode["Show tangent"] = True
 
-		# Tangent
+		# Area
 		if keys[pygame.K_a] and not self.last["a"]:
 			if self.mode["Show area"]:
 				self.mode["Show area"] = False
 			elif self.curve:
 				self.mode["Show area"] = True
+
+		# Critical points
+		if keys[pygame.K_c] and not self.last["c"]:
+
+			if self.mode["Show critical points"]:
+				self.mode["Show critical points"] = False
+			elif self.curve:
+				self.mode["Show critical points"] = True
+
+
 
 	def clear_modes(self):
 		"""
@@ -254,7 +275,6 @@ class Controller(object):
 		# Get new mouse positions
 		mouse_pos = pygame.mouse.get_pos()
 		# Move point there
-		#self.curve.line.move_point(self.pull_point, mouse_pos, kind='sigmoid')
 		self.curve.move_point(self.pull_point, mouse_pos, line="line")
 
 	def find_point(self, all_points, mouse, vertical=True, radius=5):
@@ -306,14 +326,11 @@ class Open_cv_control(object):
 			center = None
 		# Only proceed if at least one contour was found
 			if len(cnts) > 0:
-				# Find the largest contour in the mask, then use
-				# it to compute the minimum enclosing circle and
-				# centroid
+				# Find the largest contour in the mask, then use it to compute the minimum enclosing circle and centroid
 				c = max(cnts, key=cv2.contourArea)
 				((x, y), radius) = cv2.minEnclosingCircle(c)
 
 				# Only proceed if the radius meets a minimum size
-				# print radius
 				if radius > 30:
 					pts=(int(x),int(y))
 
@@ -328,12 +345,10 @@ class Open_cv_control(object):
 						self.running_points.append(pts)								# and if it doesn't curl back (last x < new x)
 			
 			for i in xrange(1, len(self.running_points)):
-				# if either of the tracked points are None, ignore
-				# them
+				# if either of the tracked points are None, ignore them
 				if self.running_points[i - 1] is None or self.running_points[i] is None:
 					continue
-				# otherwise, compute the thickness of the line and
-				# draw the connecting lines
+				# otherwise, compute the thickness of the line and draw the connecting lines
 				thickness = 2
 				cv2.line(hfframe, self.running_points[i - 1], self.running_points[i], (255, 0, 0), thickness)
 			
@@ -354,12 +369,6 @@ class Open_cv_control(object):
 		if grabbed:
 			frame_size = frame.shape
 			frame_ct = (frame_size[1]/2,frame_size[0]/2)
-			# print frame_ct
-			# pixels = [frame[i,j] for i in range(frame_ct[0]-10,frame_ct[0]+10) for j in range(frame_ct[1]-10,frame_ct[1]+10)]
-			# self.avg_col= (int(np.mean([px[0] for px in pixels])),int(np.mean([px[1] for px in pixels])),int(np.mean([px[2] for px in pixels])))
-			# if self.avg_col != self.prev_avg_col:
-			# 	print self.avg_col
-			# self.prev_avg_col = self.avg_col
 			print frame[frame_ct[0],frame_ct[1]]
 			cv2.circle(frame, frame_ct, 20,(142, 37, 149), -1) #bright pink color
 
