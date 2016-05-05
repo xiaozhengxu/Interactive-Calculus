@@ -1,5 +1,5 @@
 ---
-title: Getting Started
+title: Welcome to Visual Calculus
 layout: template
 filename: index
 --- 
