@@ -1,4 +1,6 @@
-### [Visual Calculus](http://xiaozhengxu.github.io/Interactive-Calculus/)
+### Visual Calculus
+
+http://xiaozhengxu.github.io/Interactive-Calculus/
 
 #### Description
 This project aims to help individuals understand and interact with the Fundamental Theorem of Calculus in a purely visual and geometric way. We hope to help learners build an intuition for the relationships among a line and its corresponding derivative and integral through an interactive window where users begin by drawing an input curve. Afer the curve is drawn, it's corresponding integral and derivative are displayed and users may adjust these lines and observe how they change in relation to one another. Users may also view corresponding tangent lines and areas to connect the functions of derivatives and integrals to their properties as lines. We hope this module will act as a supplement to traditional textbook explanations and will be a userful tool for both teachers and learners.
