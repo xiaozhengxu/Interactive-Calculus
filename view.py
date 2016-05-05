@@ -30,6 +30,7 @@ class View(object):
 		self.screen = pygame.display.set_mode(self.screen_size)
 		self.controller = Controller()
 
+
 	def draw_grid(self):
 		"""
 		Method to draw grid if user wants
@@ -91,6 +92,22 @@ class View(object):
 				self.draw_legend()
 			
 		self.draw_graph()
+
+		#Draw buttons
+		for key in self.controller.model.buttons:
+			button = self.controller.model.buttons[key]
+			self.screen.blit(button.background[button.toggle], button.position)
+			self.screen.blit(button.image, button.position)
+			if self.controller.mode["Show help"]:
+				surf = self.controller.model.buttons[key].label
+				text_pos = ((50-button.label.get_width())/2+button.position[0], button.position[1]-25)
+				self.screen.blit(surf, text_pos)
+
+		# if self.controller.mode["Show help"]:
+		# 	for key in self.controller.model.buttons:
+		# 		surf = self.controller.model.buttons[key].label
+		# 		pos = (self.controller.model.buttons[key].text_pos)
+		# 		self.screen.blit(surf, pos)
 
 		if self.controller.mode['Mouse drawing']:
 			try:
@@ -155,10 +172,10 @@ class View(object):
 					if abs(pt[0]-x_position) < 5:
 						found_y = pt[1]
 			if self.controller.curve.integral.points[1][0]-7 <= x_position <= self.controller.curve.integral.points[-1][0]:
-				pygame.draw.circle(self.screen, (0, 100, 0), (int(x_position), int(found_y)), 4)
+				pygame.draw.circle(self.screen, (100, 0, 0), (int(x_position), int(found_y)), 4)
 
 			elif self.controller.curve.integral.points[-1][0]-7 < x_position:
-				pygame.draw.circle(self.screen, (0, 100, 0), (int(self.controller.curve.integral.points[-1][0]), int(self.controller.curve.integral.points[-1][1])), 4)
+				pygame.draw.circle(self.screen, (100, 0, 0), (int(self.controller.curve.integral.points[-1][0]), int(self.controller.curve.integral.points[-1][1])), 4)
 
 
 		#Display critical points lines
@@ -179,6 +196,8 @@ class View(object):
 				image.set_alpha(150) #255 is fully opaque, 0 is fully transparent
 				self.screen.blit(image,(0, 0))
 
+
+
 		# #display the current mode 
 		# self.display_text('Current mode: {}'.format(self.controller.mode),fontsmall, (186,85,211), 0,0) #purple color
 		# Display the instructions for the mode underneath the mode name
@@ -191,7 +210,5 @@ class View(object):
 		if mode['Open CV drawing']:
 			return 'Open CV drawing color: {}'.format(color)
 
-
-		
 
 

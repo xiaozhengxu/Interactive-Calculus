@@ -61,7 +61,8 @@ class Controller(object):
 		"l": False,
 		"w": False,
 		"a": False,
-		"c": False
+		"c": False,
+		"h": False
 		}
 
 		self.mode = {
@@ -71,7 +72,8 @@ class Controller(object):
 		"Mouse drawing": False,
 		"Mouse pulling": False,
 		"Open CV drawing": False,
-		"Open CV calibrating": False
+		"Open CV calibrating": False,
+		"Show help": False
 		}
 
 		self.pull_point = None		# Determing which point is being pulled
@@ -139,13 +141,13 @@ class Controller(object):
 			self.pull_with_mouse()
 		
 		if self.mode["Show tangent"]:
-			idx = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=False)
+			idx = self.find_point(self.curve.line.points, vertical=False)
 			if idx != None:
 				self.tangent_point = idx
 				self.curve.line.make_tangent(self.tangent_point,200)
 
 		if self.mode['Show area']:
-			idx = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=False)
+			idx = self.find_point(self.curve.line.points, vertical=False)
 			if idx != None:
 				self.curve.line.make_area(idx) 
 
@@ -155,22 +157,21 @@ class Controller(object):
 				self.curve.derivative.make_crpoints()
 
 		# Change self.mode according to keypresses
-		self.change_mode(keys)
+		self.change_mode_key(keys)
 
-		"""Clearing the screen"""
-		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
-			self.clear_modes()
-			self.running_points = []
-			try:
-				self.open_cv_control.running_points = []
-			except:
-				print "OpenCV not loaded, Cannot reset open_cv_control.running_points "
-			self.curve = None
+		# Change self.mode according to on-screen buttons
+		if pygame.mouse.get_pressed()[0] and not self.last["press"]:
+			self.change_mode_btn()
 
-		""" Stuff to change grid, legend etc."""
+		# Update the button's model of the current mode
+		self.update_buttons()
+
+		# Stuff to change grid, legend etc.
 		if keys[pygame.K_g] and not self.last["g"]:
 			self.model.grid_update()
 		if keys[pygame.K_l] and not self.last["l"]:
+			self.model.legend_update()
+		if keys[pygame.K_h] and not self.last["h"]:
 			self.model.legend_update()
 
 		# Keep track of last key presses
@@ -182,8 +183,9 @@ class Controller(object):
 		self.last["t"] = keys[pygame.K_t]
 		self.last["a"] = keys[pygame.K_a]
 		self.last["c"] = keys[pygame.K_c]
+		self.last["h"] = keys[pygame.K_h]
 
-	def change_mode(self, keys):
+	def change_mode_key(self, keys):
 		"""
 		Check if the user is changing modes.
 		Used in self.handle_events()
@@ -196,10 +198,10 @@ class Controller(object):
 
 			elif self.curve:				# If there is already a curve, find a pull point and get into pulling mode
 				if self.pull_mode == "Handle":
-					self.pull_point = self.find_point(self.curve.line.pull_points, pygame.mouse.get_pos())
+					self.pull_point = self.find_point(self.curve.line.pull_points)
 
 				elif self.pull_mode == "Curve":
-					self.pull_point = self.find_point(self.curve.line.points, pygame.mouse.get_pos(), vertical=True)
+					self.pull_point = self.find_point(self.curve.line.points, vertical=True)
 
 				if self.pull_point != None:
 					print "Pulling point is number:", self.pull_point
@@ -208,6 +210,10 @@ class Controller(object):
 				self.clear_modes()
 				self.mode['Mouse drawing'] = True
 				self.running_points = []
+
+		# Clearing the screen if mouse 2 is pressed
+		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
+			self.clear_screen()
 
 		# Open CV Drawing
 		if keys[pygame.K_SPACE] and not self.last["space"]: 
@@ -241,6 +247,76 @@ class Controller(object):
 			elif self.curve:
 				self.mode["Show critical points"] = True
 
+	def update_buttons(self):
+		"""
+		Update the toggle attribute of the buttons based on the modes.
+		"""
+		self.model.buttons["Draw"].toggle = self.mode["Mouse drawing"]
+		self.model.buttons["Camera"].toggle = self.mode["Open CV drawing"]
+		self.model.buttons["Tangent"].toggle = self.mode["Show tangent"]
+		self.model.buttons["Area"].toggle = self.mode["Show area"]
+		self.model.buttons["Crit"].toggle = self.mode["Show critical points"]
+
+	def change_mode_btn(self):
+		"""
+		Change the various modes based on button clicks.
+		"""
+		if self.button_hit("Draw") and not self.curve:
+
+			self.clear_modes()				# Get into Drawing mode
+			self.mode['Mouse drawing'] = True
+			self.running_points = []
+
+		elif self.button_hit("Clear"):
+			self.clear_screen()
+
+		elif self.button_hit("Camera"):
+			if self.mode['Open CV drawing']:
+				self.mode['Open CV drawing'] = False
+			else:
+				try:
+					self.open_cv_control.running_points = []
+					self.mode['Open CV drawing'] = True
+					self.running_points = []
+					self.curve = None
+				except:
+					print "Open CV Not available."
+
+		elif self.button_hit("Tangent"):
+			if self.mode["Show tangent"]:
+				self.mode["Show tangent"] = False
+			elif self.curve:
+				self.mode["Show tangent"] = True
+
+		elif self.button_hit("Area"):
+			if self.mode["Show area"]:
+				self.mode["Show area"] = False
+			elif self.curve:
+				self.mode["Show area"] = True
+
+		elif self.button_hit("Crit"):
+			if self.mode["Show critical points"]:
+				self.mode["Show critical points"] = False
+			elif self.curve:
+				self.mode["Show critical points"] = True
+
+		elif self.button_hit("Grid"):
+			self.model.grid_update()
+
+		elif self.button_hit("Help"):
+			self.mode["Show help"] = not self.mode["Show help"]
+
+
+	def button_hit(self, button_key):
+		"""
+		Determines if the mouse is in the button's hitbox. Returns appropriate bool.
+		"""
+		mouse = pygame.mouse.get_pos()
+		pos = self.model.buttons[button_key].position
+		if pos[0] <= mouse[0] and mouse[0] <= pos[0]+50: # Check x component
+			if pos[1] <= mouse[1] and mouse[1] <= pos[1]+50:
+				return True
+		return False
 
 
 	def clear_modes(self):
@@ -277,11 +353,26 @@ class Controller(object):
 		# Move point there
 		self.curve.move_point(self.pull_point, mouse_pos, line="line")
 
-	def find_point(self, all_points, mouse, vertical=True, radius=5):
+	def clear_screen(self):
+		"""
+		Clears the curves.
+		"""
+		self.clear_modes()
+		self.running_points = []
+		try:
+			self.open_cv_control.running_points = []
+		except:
+			print "OpenCV not loaded, Cannot reset open_cv_control.running_points "
+		self.curve = None
+
+
+	def find_point(self, all_points, vertical=True, radius=5):
 		"""
 		Find a point from a mouse click on a list of points.
 		vertical is a bool; when False it disables vertical search (you can select a point by clicking under it)
 		"""
+		mouse = pygame.mouse.get_pos()
+
 		found_idx = None
 		for idx, pt in enumerate(all_points):
 			if abs(pt[0]-mouse[0]) < radius and (abs(pt[1]-mouse[1]) < radius or not vertical):
