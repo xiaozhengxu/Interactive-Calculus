@@ -33,7 +33,7 @@ To use the program, run main.py.
 
 Toggle on the draw button in the bottom left corner to begin. Click once to begin drawing and again to stop. From there, use the buttons to view tangent lines, critical points and more. Toggle on the camera button to draw a curve using webcam. (A tennis ball works well).
 
-#####Keyboard shortcuts 
+##### Keyboard shortcuts 
 
 't': Turn on/off show tangents
  
