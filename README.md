@@ -29,12 +29,19 @@ To use the program, run main.py.
 Toggle on the draw button in the bottom left corner to begin. Click once to begin drawing and again to stop. From there, use the buttons to view tangent lines, critical points and more. Toggle on the camera button to draw a curve using webcam. (A tennis ball will work best.) 
 
 Keyboard shortcuts: 
+
 't': Turn on/off show tangents
+ 
 'a': Turn on/off show area under curve
+
 'c': Turn on/off show critical points
+
 'h': Turn on/off legend
+
 'g': Turn on/off grid
+
 Space: draw with open CV and stop drawing
+
 Right click: clear screen
 
 ##### Known Bugs
