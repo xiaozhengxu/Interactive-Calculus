@@ -51,6 +51,9 @@ The current two colors are bright\_green and bright\_pink. bright\_green works w
 
 To add a drawing color for open CV, find a color range for the given color at http://colorizer.org/. Color range is in HSV and open CV has the following HSV range: H: 0-180, S: 0 -255, V: 0-255. Convert the values if necessary. In Control.py add the color range and the color name to the dictionary *colors* on top of the page. 
 
+##### Changing screen size
+The current screen size is 800 by 800 pixels. To change it, modify line 21 in view.py : screen_size = (x,y).
+
 ##### Changing mode of moving curve in code
 There are two ways to move the curve around. The default is 'Handle'. To experiment with the other mode 'Curve', change line 23 in Control.py to pull_mode = 'Curve'. Save the script and run again.
 
