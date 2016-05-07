@@ -17,7 +17,7 @@ from Model import *
 
 #define HSV color range of a tennis ball: open cv has range: H: 0-180, S: 0 -255, V: 0-255
 colors = {'bright_green':[(29, 84, 6),(64, 255, 255)],'bright_pink':[(145,84,120),(175,255,255)]}
-color = 'bright_pink' # Used for OpenCV
+color = 'bright_green' # Used for OpenCV
 
 #pull_mode can be 'Handle' or 'Curve'
 pull_mode = "Handle"
