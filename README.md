@@ -28,9 +28,17 @@ To use the program, run main.py.
 
 Toggle on the draw button in the bottom left corner to begin. Click once to begin drawing and again to stop. From there, use the buttons to view tangent lines, critical points and more. Toggle on the camera button to draw a curve using webcam. (A tennis ball will work best.) 
 
-##### Known Bugs
+Keyboard shortcuts: 
+'t': Turn on/off show tangents
+'a': Turn on/off show area under curve
+'c': Turn on/off show critical points
+'h': Turn on/off legend
+'g': Turn on/off grid
+Space: draw with open CV and stop drawing
+Right click: clear screen
 
-The interactive screen is 1000 by 1000 pixels. This may be too large for smaller computer screens.
+##### Known Bugs
+Open CV calibration does not work.
 
 #### Authors
 [Matthew Beaudouin-Lafon](https://github.com/MatthewBeaudouinLafon), [March Saper](https://github.com/mesrumpled), [Xiaoxheng Xu](https://github.com/xiaozhengxu) 
