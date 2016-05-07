@@ -66,7 +66,7 @@ class Controller(object):
 		"a": False,
 		"c": False,
 		"h": False,
-		# "o": False
+		"s": False
 		}
 
 		self.mode = {
@@ -87,7 +87,7 @@ class Controller(object):
 
 		self.pull_mode = pull_mode
 		self.image = None
-
+		self.save = False
 
 	def handle_events(self):
 		"""
@@ -204,7 +204,7 @@ class Controller(object):
 		self.last["a"] = keys[pygame.K_a]
 		self.last["c"] = keys[pygame.K_c]
 		self.last["h"] = keys[pygame.K_h]
-		self.last["o"] = keys[pygame.K_o]
+		self.last["s"] = keys[pygame.K_s]
 
 	def change_mode_key(self, keys):
 		"""
@@ -279,6 +279,10 @@ class Controller(object):
 				self.mode["Show critical points"] = False
 			elif self.curve:
 				self.mode["Show critical points"] = True
+
+		# Save image		
+		if keys[pygame.K_s] and not self.last["s"]:
+			self.save = True
 
 	def update_buttons(self):
 		"""

@@ -18,7 +18,7 @@ fontlarge = pygame.font.SysFont('UbuntuMono',100)
 fontmedium = pygame.font.SysFont('UbuntuMono',40)
 fonttiny = pygame.font.SysFont('UbuntuMono', 15)
 
-screen_size = (800,800)
+screen_size = (800,600)
 
 class View(object):
 	"""
@@ -196,6 +196,11 @@ class View(object):
 		#display the current modes for debugging purposes 
 		# self.display_text('Open CV mode: {}'.format(self.controller.mode['Open CV drawing']),fontsmall, (186,85,211), 0,0) #purple color
 		# self.display_text('Mouse pulling mode: {}'.format(self.controller.mode['Mouse pulling']),fontsmall, (186,85,211), 0,15) #purple color
+
+		# save the current screen as a png when the user press s 
+		if self.controller.save:
+			pygame.image.save(self.screen, raw_input('Save the current screen as an image: Please input a file name to save as'))
+			self.controller.save = False
 
 		pygame.display.update()
 
