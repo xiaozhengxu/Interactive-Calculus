@@ -26,9 +26,9 @@ To use the program, run main.py.
 
 `  python main.py`
 
-Toggle on the draw button in the bottom left corner to begin. Click once to begin drawing and again to stop. From there, use the buttons to view tangent lines, critical points and more. Toggle on the camera button to draw a curve using webcam. (A tennis ball will work best.) 
+Toggle on the draw button in the bottom left corner to begin. Click once to begin drawing and again to stop. From there, use the buttons to view tangent lines, critical points and more. Toggle on the camera button to draw a curve using webcam. (A tennis ball works well).
 
-Keyboard shortcuts: 
+#####Keyboard shortcuts 
 
 't': Turn on/off show tangents
  
@@ -43,6 +43,16 @@ Keyboard shortcuts:
 Space: draw with open CV and stop drawing
 
 Right click: clear screen
+
+'s': Save the current as a filename (run from terminal or other interactive python, and you will be prompted to enter your prefered filename)
+
+##### Open CV drawing colors
+The current two colors are bright\_green and bright\_pink. bright\_green works with a tennis ball and any light green colored sticky notes. bright\_pink works well with bright pink sticky notes. To change the drawing color, modify color = 'bright_pink' in Control.py (line 20). 
+
+To add a drawing color for open CV, find a color range for the given color at http://colorizer.org/. Color range is in HSV and open CV has the following HSV range: H: 0-180, S: 0 -255, V: 0-255. Convert the values if necessary. In Control.py add the color range and the color name to the dictionary *colors* on top of the page. 
+
+##### Changing mode of moving curve in code
+There are two ways to move the curve around. The default is 'Handle'. To experiment with the other mode 'Curve', change line 23 in Control.py to pull_mode = 'Curve'. Save the script and run again.
 
 ##### Known Bugs
 Open CV calibration does not work.
