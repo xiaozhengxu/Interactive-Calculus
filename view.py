@@ -18,6 +18,7 @@ fontlarge = pygame.font.SysFont('UbuntuMono',100)
 fontmedium = pygame.font.SysFont('UbuntuMono',40)
 fonttiny = pygame.font.SysFont('UbuntuMono', 15)
 
+screen_size = (800,800)
 
 class View(object):
 	"""
@@ -26,7 +27,7 @@ class View(object):
 
 	def __init__(self, curve=None):
 		pygame.init()
-		self.screen_size = (1000, 1000)
+		self.screen_size = screen_size
 		self.screen = pygame.display.set_mode(self.screen_size)
 		self.controller = Controller()
 
@@ -88,7 +89,7 @@ class View(object):
 		#Draw the area polygons
 		if self.controller.mode['Show area']:
 			#initiate another surface so 
-			s = pygame.Surface((1000,1000))  # the size of your rect
+			s = pygame.Surface(self.screen_size)  # the size of your rect
 			s.set_alpha(100)                # alpha level
 			s.fill((255,255,255))           # this fills the entire surface
 			if self.controller.curve.line.area:
@@ -183,20 +184,18 @@ class View(object):
 			elif self.controller.curve.derivative.points[1][0] -7 > x_position:
 				pygame.draw.circle(self.screen, (0, 0, 205), (int(self.controller.curve.derivative.points[1][0]), int(self.controller.curve.derivative.points[1][1])), 4)		
 
-		#Display the open cv image on screen
+		#Display the open cv image on screen and the open cv drawing color
 		if self.controller.mode['Open CV drawing']:
 			if self.controller.image != None:
 				image=pygame.surfarray.make_surface(self.controller.image)
 				image.set_alpha(150) #255 is fully opaque, 0 is fully transparent
 				self.screen.blit(image,(0, 0))
+				instructions = self.get_instructions_for_mode(self.controller.mode)
+				self.display_text(instructions,fontsmall,(186,85,211), 0, 15)
 
-
-
-		# #display the current mode 
-		# self.display_text('Current mode: {}'.format(self.controller.mode),fontsmall, (186,85,211), 0,0) #purple color
-		# Display the instructions for the mode underneath the mode name
-		# instructions = self.get_instructions_for_mode(self.controller.mode)
-		# self.display_text(instructions,fontsmall,(186,85,211), 0, 30)
+		#display the current modes for debugging purposes 
+		# self.display_text('Open CV mode: {}'.format(self.controller.mode['Open CV drawing']),fontsmall, (186,85,211), 0,0) #purple color
+		# self.display_text('Mouse pulling mode: {}'.format(self.controller.mode['Mouse pulling']),fontsmall, (186,85,211), 0,15) #purple color
 
 		pygame.display.update()
 

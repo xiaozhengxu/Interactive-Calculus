@@ -1,6 +1,7 @@
 from scipy import interpolate
 import numpy as np
 import math
+import view
 
 def trap(a, b):
 	"""
@@ -36,7 +37,7 @@ class Curve(object):
 		if line == 'line':
 			self.line.move_point(handle, new_pos, kind="sigmoid")
 			if self.pull_mode == "Handle":
-				pass
+				# pass
 				# Re-interpolate the line through the moved handle points
 				self.line = Line(self.line.pull_points, keep_points=True)
 
@@ -127,20 +128,20 @@ class Line(object):
 		polygon = [[]]
 		prev_pt = self.points[0]
 		polygon_num = 0
-		polygon[polygon_num].append((self.points[0][0],500))
+		polygon[polygon_num].append((self.points[0][0],view.screen_size[0]/2))
 		for i,pt in enumerate(self.points[:idx+1]):
-			if (pt[1]-500)*(prev_pt[1]-500)>0:
+			if (pt[1]-view.screen_size[0]/2)*(prev_pt[1]-view.screen_size[0]/2)>0:
 				polygon[polygon_num].append(pt)
 
-			elif (pt[1]-500)*(prev_pt[1]-500)<0:
-				polygon[polygon_num].append((self.points[i][0],500))
+			elif (pt[1]-view.screen_size[0]/2)*(prev_pt[1]-view.screen_size[0]/2)<0:
+				polygon[polygon_num].append((self.points[i][0],view.screen_size[0]/2))
 				polygon.append([])
 				polygon_num+=1
 				#Add the point on the x axis
-				polygon[polygon_num].append((self.points[i][0],500))
+				polygon[polygon_num].append((self.points[i][0],view.screen_size[0]/2))
 			prev_pt = pt
 
-		polygon[polygon_num].append((self.points[idx][0],500))
+		polygon[polygon_num].append((self.points[idx][0],view.screen_size[0]/2))
 		self.area = polygon
 
 	def make_crpoints(self):
@@ -148,9 +149,9 @@ class Line(object):
 		self.cr_index = []
 		prev_ypt = 0
 		for i, pt in enumerate(self.points):
-			if prev_ypt*(pt[1]-500) < 0:
+			if prev_ypt*(pt[1]-view.screen_size[0]/2) < 0:
 				self.cr_index.append((pt[0], pt[1]))
-			prev_ypt = pt[1]-500
+			prev_ypt = pt[1]-view.screen_size[0]/2
 
 
 	def deep_copy(self):
@@ -190,7 +191,7 @@ class Line(object):
 		elif self.pull_mode == "Handle":
 			pts = self.pull_points
 			kind = None
-
+			
 		distance_x = float(new_pos[0] - pts[index][0])    # Distance pulling point moved
 		distance_y = float(new_pos[1] - pts[index][1])    # Distance pulling point moved
 
@@ -258,7 +259,7 @@ class Line(object):
 		prev_pt = self.points[0]
 
 		for pt in self.points[1:]:
-			deriv.append( ((pt[0]+prev_pt[0])/2.0, 50*(prev_pt[1]-pt[1])/(prev_pt[0]-pt[0])+500) ) # Numerical approximation. Note: Weird scaling
+			deriv.append( ((pt[0]+prev_pt[0])/2.0, 50*(prev_pt[1]-pt[1])/(prev_pt[0]-pt[0])+view.screen_size[0]/2) ) # Numerical approximation. Note: Weird scaling
 			prev_pt = pt
 
 		return deriv
@@ -272,10 +273,10 @@ class Line(object):
 		tr = 0.0    # Initial trapezoidal area
 		C = 0   # Initial integration constant
 		for pt in self.points[1:]:
-			tr += trap((prev_pt[0]-500, prev_pt[1]-500), (pt[0]-500, pt[1]-500))    # Numerical approximation of integral
+			tr += trap((prev_pt[0]-view.screen_size[0]/2, prev_pt[1]-view.screen_size[0]/2), (pt[0]-view.screen_size[0]/2, pt[1]-view.screen_size[0]/2))    # Numerical approximation of integral
 			x = (pt[0]+prev_pt[0])/2    # New x value
 
-			if x < 500:             # Get the integration constant (integral from the first point to 0)
+			if x < view.screen_size[0]/2:             # Get the integration constant (integral from the first point to 0)
 				C = tr
 
 			int_pt = (x, tr)
@@ -283,7 +284,7 @@ class Line(object):
 			integral.append(int_pt)
 			prev_pt = pt
 
-		integral = [(pt[0], 500+(pt[1]-C)/100) for pt in integral] # WEIRD SCALING 
+		integral = [(pt[0], view.screen_size[0]/2+(pt[1]-C)/100) for pt in integral] # WEIRD SCALING 
 		return integral
 
 

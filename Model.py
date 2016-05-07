@@ -20,12 +20,12 @@ class Model(object):
 		self.buttons = {}
 
 		button_list = ["Draw", "Clear", "Tangent", "Area", "Crit", "Grid", "Camera", "Help"]
-
+		button_spacing = (view.screen_size[0]-8*52)/9
 		for label in button_list:
 			self.buttons[label] = Button(label)
 
 		for i, key in enumerate(button_list): # Force the loading of buttons in an order
-			self.buttons[key].position = (67 + (66+50) * i, 940)	
+			self.buttons[key].position = ( button_spacing + (button_spacing+52) * i, view.screen_size[1]-60)	
 
 		# self.buttons["Tangent"].toggle = True
 		# self.buttons["Area"].toggle = True	
@@ -90,7 +90,7 @@ class Button(object):
 											# Later, this surface will be blipped before the image.
 
 		self.label = fontsmall.render(img_name, 1, (150,150,150))
-		self.text_pos = (self.position[0], 910)
+		self.text_pos = (self.position[0], view.screen_size[1]-90)
 
 
 		

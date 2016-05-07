@@ -19,6 +19,9 @@ from Model import *
 colors = {'bright_green':[(29, 84, 6),(64, 255, 255)],'bright_pink':[(145,84,120),(175,255,255)]}
 color = 'bright_pink' # Used for OpenCV
 
+#pull_mode can be 'Handle' or 'Curve'
+pull_mode = "Handle"
+
 class Controller(object): 
 	"""
 	Handles Keyboard, Mouse and OpenCV inputs. 
@@ -62,7 +65,8 @@ class Controller(object):
 		"w": False,
 		"a": False,
 		"c": False,
-		"h": False
+		"h": False,
+		# "o": False
 		}
 
 		self.mode = {
@@ -81,7 +85,7 @@ class Controller(object):
 
 		self.model = Model()
 
-		self.pull_mode = "Handle"
+		self.pull_mode = pull_mode
 		self.image = None
 
 
@@ -151,20 +155,11 @@ class Controller(object):
 			except:
 				pass
 			self.image = self.open_cv_control.image
-
 			self.running_points = self.open_cv_control.running_points
-
-			if keys[pygame.K_SPACE] and not self.last["space"]:
-				self.clear_modes()
-				if len(self.running_points)>15:
-					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  
-					print self.running_points
-				else:
-					print 'Not enough points registered'
 
 		elif self.mode["Mouse pulling"]:
 			self.pull_with_mouse()
-		
+
 		if self.mode["Show tangent"]:
 			idx = self.find_point(self.curve.line.points, vertical=False)
 			if idx != None:
@@ -209,6 +204,7 @@ class Controller(object):
 		self.last["a"] = keys[pygame.K_a]
 		self.last["c"] = keys[pygame.K_c]
 		self.last["h"] = keys[pygame.K_h]
+		self.last["o"] = keys[pygame.K_o]
 
 	def change_mode_key(self, keys):
 		"""
@@ -236,15 +232,31 @@ class Controller(object):
 		if pygame.mouse.get_pressed()[2]: # Mouse2 to clear
 			self.clear_screen()
 
-		# Open CV Drawing
-		if keys[pygame.K_SPACE] and not self.last["space"]: 
+		# switching between Handle and Curve (does not work at the moment)
+		# if keys[pygame.K_o] and not self.last["o"]:
+		# 	if self.pull_mode == 'Handle':
+		# 		self.pull_mode = 'Curve'
+		# 	elif self.pull_mode == 'Curve':
+		# 		self.pull_mode = 'Handle'
+		# if self.curve:
+		# 	self.curve.line.pull_mode = self.pull_mode
+
+		#Open CV drawing
+		if keys[pygame.K_SPACE] and not self.last["space"]:
 			if self.mode['Open CV drawing']:
 				self.mode['Open CV drawing'] = False
+				if len(self.running_points)>15:
+					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  
+				else:
+					print 'Not enough points registered'
 			else:
-				self.mode['Open CV drawing'] = True
-				self.open_cv_control.running_points = []
-				self.running_points = []
-				self.curve = None
+				try:
+					self.open_cv_control.running_points = []
+					self.mode['Open CV drawing'] = True
+					self.running_points = []
+					self.curve = None
+				except:
+					print "Open CV Not available."
 
 		# Tangent
 		if keys[pygame.K_t] and not self.last["t"]:
@@ -292,9 +304,13 @@ class Controller(object):
 			self.clear_screen()
 
 		elif self.button_hit("Camera"):
-			self.clear_modes()
+			# self.clear_modes()
 			if self.mode['Open CV drawing']:
 				self.mode['Open CV drawing'] = False
+				if len(self.running_points)>15:
+					self.curve = Curve(self.running_points[::len(self.running_points)/15], self.pull_mode)  
+				else:
+					print 'Not enough points registered'
 			else:
 				try:
 					self.open_cv_control.running_points = []
@@ -469,7 +485,7 @@ class Open_cv_control(object):
 			self.image = np.rot90(self.image) 
 
 
-			#Uncomment the following lines to show frame and mask
+			#Uncomment the following lines to show frame and mask in separate windows
 			# cv2.imshow("Mask", hfmask)
 			# cv2.imshow("Horizontal flip", hfframe)
 			cv2.waitKey(1)  #waitKey displays each image for 1 ms. and allow the loop to run. if itt's 0 the image will be displayed infinitely and no input will be accepted
