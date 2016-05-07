@@ -18,7 +18,7 @@ fontlarge = pygame.font.SysFont('UbuntuMono',100)
 fontmedium = pygame.font.SysFont('UbuntuMono',40)
 fonttiny = pygame.font.SysFont('UbuntuMono', 15)
 
-screen_size = (800,600)
+screen_size = (800,800)
 
 class View(object):
 	"""
