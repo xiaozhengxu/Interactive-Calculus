@@ -44,7 +44,7 @@ Space: draw with open CV and stop drawing
 
 Right click: clear screen
 
-'s': Save the current as a filename (run from terminal or other interactive python, and you will be prompted to enter your prefered filename)
+'s': Save the current screen as a image. run main.py from terminal or other interactive python, and you will be prompted to enter your prefered filename ex.(screen.png)
 
 ##### Open CV drawing colors
 The current two colors are bright\_green and bright\_pink. bright\_green works with a tennis ball and any light green colored sticky notes. bright\_pink works well with bright pink sticky notes. To change the drawing color, modify color = 'bright_pink' in Control.py (line 20). 
